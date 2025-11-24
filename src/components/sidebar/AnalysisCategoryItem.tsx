@@ -1,5 +1,5 @@
 import { ChevronRight } from "lucide-react";
-import type { AnalysisCategory } from "@/data";
+import type { AnalysisCategory } from "@/data/analysisCategories";
 import { cn } from "@/lib/utils";
 
 interface AnalysisCategoryItemProps {
