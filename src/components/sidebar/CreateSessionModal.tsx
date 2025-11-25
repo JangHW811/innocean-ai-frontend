@@ -1,8 +1,9 @@
 "use client";
 
 import { FileText, Target } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useUpsertSessionInfo } from "@/apis/sessions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,12 +23,9 @@ const CreateSessionModal = () => {
   const [open, setOpen] = useState(false);
   const { confirm } = useAlert();
   const methods = useForm();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = methods;
-  const onSubmit = (data: any) => {
+  const { mutateAsync: upsertSessionInfo } = useUpsertSessionInfo();
+  const { register, handleSubmit, reset } = methods;
+  const onSubmit = async (data: any) => {
     console.log("onsubmit", data);
     const values = Object.values(data);
     const isEmpty = values.every((value) => !value);
@@ -36,20 +34,29 @@ const CreateSessionModal = () => {
       confirm({
         title: "컨텍스트 입력 안내",
         description: "컨텍스트 없이 분석을 진행 하시겠습니까?",
-        onConfirm: () => {
+        onConfirm: async () => {
           console.log("onConfirm");
+          await upsertSessionInfo(undefined);
           setOpen(false);
         },
       });
       return;
     }
+    await upsertSessionInfo({
+      projectSummary: data.projectSummary,
+      analyticTarget: data.analyticTarget,
+    });
     setOpen(false);
   };
   const onError = (errors: any) => {
     console.log("onerror", errors);
   };
 
-  console.log("???", errors);
+  useEffect(() => {
+    if (!open) {
+      reset();
+    }
+  }, [open, reset]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

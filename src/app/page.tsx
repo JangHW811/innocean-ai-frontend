@@ -1,5 +1,10 @@
+import Providers from "@/components/common/providers";
 import Layout from "@/components/Layout";
 
 export default function Home() {
-  return <Layout />;
+  return (
+    <Providers>
+      <Layout />
+    </Providers>
+  );
 }
