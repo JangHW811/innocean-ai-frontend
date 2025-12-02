@@ -44,6 +44,18 @@ export const analysisCategories: AnalysisCategory[] = [
     bgColor: "bg-blue-50",
     analyses: [
       {
+        id: "mock_analysis",
+        title: "mock 카테고리",
+        description: "그냥 바로됨",
+        icon: BarChart3,
+      },
+      {
+        id: "needs_and_triggers",
+        title: "time 카테고리",
+        description: "시간이 걸리도록 pending 상태 유지됨",
+        icon: BarChart3,
+      },
+      {
         id: "interest-trend",
         title: "카테고리/브랜드 관심도 추이 분석",
         description: "시간에 따른 관심도 변화 패턴 분석",

@@ -1,7 +1,8 @@
 import type { Dayjs } from "dayjs";
 import { create } from "zustand";
+import type { SessionInfo } from "@/apis/sessions";
 
-export interface SessionInfo {
+export interface LocalSessionInfo extends SessionInfo {
   id?: string;
   projectSummary?: string;
   analyticTarget?: string;
@@ -17,9 +18,8 @@ interface SessionStoreState {
   removeSelectedFileId: (id: string) => void;
   clearSelectedFileIdList: () => void;
 
-  taskType?: string;
-  setTaskType: (taskType: string) => void;
-  clearTaskType: () => void;
+  selectedJobId: string | null;
+  setSelectedJobId: (id: string | null) => void;
 }
 
 export const useSessionStore = create<SessionStoreState>((set) => ({
@@ -36,6 +36,6 @@ export const useSessionStore = create<SessionStoreState>((set) => ({
     })),
   clearSelectedFileIdList: () => set({ selectedFileIdList: [] }),
 
-  setTaskType: (taskType) => set({ taskType }),
-  clearTaskType: () => set({ taskType: undefined }),
+  selectedJobId: null,
+  setSelectedJobId: (id) => set({ selectedJobId: id }),
 }));

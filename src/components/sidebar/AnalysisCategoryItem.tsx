@@ -1,8 +1,9 @@
+import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { useAnalysisJobsStart, useSessionInfo } from "@/apis/sessions";
 import type { Analysis, AnalysisCategory } from "@/data/analysisCategories";
 import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/stores/sessionStore";
-import { ChevronRight } from "lucide-react";
-import { useState } from "react";
 
 interface AnalysisCategoryItemProps {
   category: AnalysisCategory;
@@ -32,7 +33,7 @@ export default function AnalysisCategoryItem({
             "icon-box w-8 h-8 rounded-md flex items-center justify-center transition-colors",
             category.bgColor,
             category.color,
-            "group-hover:bg-indigo-50 group-hover:text-indigo-600"
+            "group-hover:bg-indigo-50 group-hover:text-indigo-600",
           )}
         >
           <Icon className="w-4 h-4" />
@@ -48,7 +49,7 @@ export default function AnalysisCategoryItem({
         <ChevronRight
           className={cn(
             "ml-auto w-4 h-4 text-gray-300 transition-transform group-hover:text-gray-500",
-            isOpen && "rotate-90"
+            isOpen && "rotate-90",
           )}
         />
       </button>
@@ -64,16 +65,24 @@ export default function AnalysisCategoryItem({
 }
 
 const AnalysisItem = ({ analysis }: { analysis: Analysis }) => {
-  const { setTaskType, taskType } = useSessionStore();
-  const isSelected = taskType === analysis.id;
+  const { selectedSessionId } = useSessionStore();
+  const { data: sessionInfo } = useSessionInfo(selectedSessionId);
+  const { mutateAsync: startAnalysisJob } = useAnalysisJobsStart();
   const AnalysisIcon = analysis.icon;
   const handleClick = () => {
-    setTaskType(analysis.id);
+    startAnalysisJob({
+      session_id: selectedSessionId!,
+      file_id: sessionInfo?.file_ids?.[0] || "",
+      params: {
+        task_type: "needs_and_triggers",
+        // task_type: analysis.id,
+        options: {},
+      },
+    });
   };
 
   const containerClassName = cn(
     "cursor-pointer flex items-start gap-2 rounded-lg px-3 py-1.5 hover:bg-gray-50 hover:text-gray-800 transition-colors",
-    isSelected && "bg-slate-200 text-gray-800 hover:bg-slate-300"
   );
   return (
     <li
