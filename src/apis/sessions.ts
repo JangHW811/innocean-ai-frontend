@@ -1,35 +1,46 @@
-import { type SessionInfo, useSessionStore } from "@/stores/sessionStore";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/authStore";
+import { http } from "./common";
 
+export interface SessionInfo {
+  session_id: string;
+  user_id: string;
+  name?: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+  file_ids?: string[];
+  job_ids?: string[];
+}
 export const useUpsertSessionInfo = () => {
   const queryClient = useQueryClient();
-  const { addSessionInfo } = useSessionStore();
   return useMutation({
-    mutationFn: (sessionInfo?: SessionInfo) => {
-      return Promise.resolve(addSessionInfo(sessionInfo));
+    mutationFn: (sessionInfo?: Pick<SessionInfo, "name" | "description">) => {
+      const userId = useAuthStore.getState().id;
+
+      return http.post("/api/sessions", { ...sessionInfo, user_id: userId });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["useSessionInfoList"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
     },
   });
 };
 
 export const useSessionInfoList = () => {
-  const { sessionInfoList } = useSessionStore();
-  return useQuery({
-    queryKey: ["/api/sessions"],
-    queryFn: () => {
-      return sessionInfoList;
-    },
+  const userId = useAuthStore.getState().id;
+  return useSuspenseQuery<SessionInfo[]>({
+    queryKey: ["/api/sessions", { user_id: userId }],
   });
 };
 
-export const useSessionInfo = (id: string) => {
-  const { sessionInfoList } = useSessionStore();
-  return useQuery({
-    queryKey: ["useSessionInfo", id],
-    queryFn: () => {
-      return sessionInfoList.find((session) => session.id === id);
-    },
+export const useSessionInfo = (sessionId?: string | null) => {
+  return useQuery<SessionInfo>({
+    queryKey: ["/api/sessions/:session_id", { session_id: sessionId }],
+    enabled: !!sessionId,
   });
 };

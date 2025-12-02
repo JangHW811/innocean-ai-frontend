@@ -1,14 +1,22 @@
 "use client";
 
+import { useMemo } from "react";
+import { useSessionInfo } from "@/apis/sessions";
 import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/stores/sessionStore";
-import { useMemo } from "react";
 import AvailableAnalysis from "./AvailableAnalysis";
 import DataUpload from "./DataUpload";
 import NewSessionCard from "./NewSessionCard";
 
 export default function Sidebar() {
-  const { selectedFileIdList, selectedSessionId } = useSessionStore();
+  const { selectedSessionId } = useSessionStore();
+
+  const { data: sessionInfo } = useSessionInfo(selectedSessionId || "");
+
+  const selectedFileIdList = useMemo(() => {
+    return sessionInfo?.file_ids || [];
+  }, [sessionInfo?.file_ids]);
+
   const { isFileVisible, isTaskVisible } = useMemo(() => {
     return {
       isFileVisible: selectedSessionId,
@@ -24,7 +32,7 @@ export default function Sidebar() {
       <section
         className={cn(
           "overflow-y-auto transition-height duration-300",
-          isFileVisible ? "max-h-80 h-auto min-h-50" : "max-h-0"
+          isFileVisible ? "max-h-80 h-auto min-h-66" : "max-h-0",
         )}
       >
         <DataUpload />
@@ -32,7 +40,7 @@ export default function Sidebar() {
       <section
         className={cn(
           "overflow-y-auto transition-height duration-300",
-          isTaskVisible ? "max-h-160 h-auto" : "max-h-0"
+          isTaskVisible ? "max-h-160 h-auto" : "max-h-0",
         )}
       >
         <AvailableAnalysis />

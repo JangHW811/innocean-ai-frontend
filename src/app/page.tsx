@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Providers from "@/components/common/providers";
+import { useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -20,9 +19,5 @@ export default function Home() {
     return null;
   }
 
-  return (
-    <Providers>
-      <Layout />
-    </Providers>
-  );
+  return <Layout />;
 }

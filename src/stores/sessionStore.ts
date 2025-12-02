@@ -1,5 +1,4 @@
 import type { Dayjs } from "dayjs";
-import dayjs from "dayjs";
 import { create } from "zustand";
 
 export interface SessionInfo {
@@ -11,9 +10,6 @@ export interface SessionInfo {
 interface SessionStoreState {
   setSelectedSessionId: (id: string | null) => void;
   selectedSessionId: string | null;
-
-  sessionInfoList: SessionInfo[];
-  addSessionInfo: (sessionInfo?: SessionInfo) => void;
 
   selectedFileIdList: string[];
   setSelectedFileIdList: (idList: string[]) => void;
@@ -30,27 +26,13 @@ export const useSessionStore = create<SessionStoreState>((set) => ({
   selectedSessionId: null,
   setSelectedSessionId: (id) => set({ selectedSessionId: id }),
 
-  sessionInfoList: [],
-  addSessionInfo: (sessionInfo) =>
-    set((state) => {
-      const randomId = Math.random().toString(36).substring(2, 15);
-      console.log("randomId", randomId);
-      const createdAt = dayjs();
-      return {
-        sessionInfoList: [
-          ...state.sessionInfoList,
-          { id: randomId, createdAt, ...sessionInfo },
-        ],
-      };
-    }),
-
   selectedFileIdList: [],
   setSelectedFileIdList: (idList) => set({ selectedFileIdList: idList }),
   addSelectedFileId: (id) =>
     set((state) => ({ selectedFileIdList: [...state.selectedFileIdList, id] })),
   removeSelectedFileId: (id) =>
     set((state) => ({
-      selectedFileIdList: state.selectedFileIdList.filter((id) => id !== id),
+      selectedFileIdList: state.selectedFileIdList.filter((_id) => _id !== id),
     })),
   clearSelectedFileIdList: () => set({ selectedFileIdList: [] }),
 

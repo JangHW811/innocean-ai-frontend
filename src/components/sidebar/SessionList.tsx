@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSessionInfoList } from "@/apis/sessions";
-import { type SessionInfo, useSessionStore } from "@/stores/sessionStore";
+import { type SessionInfo, useSessionInfoList } from "@/apis/sessions";
+import { useSessionStore } from "@/stores/sessionStore";
 import SessionItem from "./SessionItem";
 
 const SessionList = () => {
@@ -10,7 +10,7 @@ const SessionList = () => {
   const { setSelectedSessionId } = useSessionStore();
   useEffect(() => {
     if (sessionInfoList && sessionInfoList.length > 0) {
-      setSelectedSessionId(sessionInfoList[0].id || null);
+      setSelectedSessionId(sessionInfoList[0].session_id || null);
     }
   }, [sessionInfoList, setSelectedSessionId]);
 
@@ -23,7 +23,7 @@ const SessionList = () => {
       </h3>
       <div className="space-y-1 max-h-60 overflow-y-auto">
         {sessionInfoList.map((session: SessionInfo) => {
-          return <SessionItem key={session.id} session={session} />;
+          return <SessionItem key={session.session_id} session={session} />;
         })}
       </div>
     </div>

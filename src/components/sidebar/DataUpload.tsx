@@ -1,37 +1,42 @@
 "use client";
-import useFileUpload from "@/apis/file";
-import { useSessionStore } from "@/stores/sessionStore";
 import { Loader2, UploadCloud } from "lucide-react";
-import { useRef, useState } from "react";
-import { useAlertActions } from "../common/providers/AlertProvider";
-import UploadedFileItem, { UploadedFile } from "./UploadedFileItem";
+import { useMemo, useRef, useState } from "react";
+import useFileUpload from "@/apis/file";
+import { useSessionInfo } from "@/apis/sessions";
+import { useSessionStore } from "@/stores/sessionStore";
+import UploadedFileItem from "./UploadedFileItem";
 
 const DataUpload = () => {
   const { mutateAsync, isPending: isUploading } = useFileUpload();
-  const {} = useAlertActions();
-  const { addSelectedFileId, removeSelectedFileId, selectedFileIdList } =
-    useSessionStore();
+  const {
+    selectedSessionId,
+    selectedFileIdList,
+    setSelectedFileIdList,
+    removeSelectedFileId,
+    addSelectedFileId,
+  } = useSessionStore();
+  const { data: sessionInfo } = useSessionInfo(selectedSessionId);
+
+  const uploadedFileIdList = useMemo(() => {
+    return sessionInfo?.file_ids || [];
+  }, [sessionInfo?.file_ids]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFiles = async (incomingFiles: File[]) => {
     if (!incomingFiles.length) return;
-    let hasSelection = selectedFileIdList.length > 0;
     for (const file of incomingFiles) {
-      const result = await mutateAsync(file);
       try {
-        const uploaded: UploadedFile = {
-          fileId: result.file_id,
-          name: result.filename || file.name,
-          size: result.size || file.size,
-        };
-        setFiles((prev) => [...prev, uploaded]);
-        if (!hasSelection) {
-          hasSelection = true;
-          addSelectedFileId(result.file_id);
-        }
+        const result = await mutateAsync({
+          file,
+          sessionId: selectedSessionId,
+        });
+        // const uploaded: UploadedFile = {
+        //   fileId: result.file_id,
+        //   name: result.filename || file.name,
+        //   size: result.size || file.size,
+        // };
       } catch (error) {
         console.error("파일 업로드 실패", error);
       }
@@ -70,8 +75,6 @@ const DataUpload = () => {
   };
 
   const handleSelectFile = (fileId: string) => {
-    const idExistFile = files.find((file) => file.fileId === fileId);
-    if (!idExistFile) return;
     if (selectedFileIdList.includes(fileId)) {
       if (selectedFileIdList.length === 1) {
         return;
@@ -83,7 +86,7 @@ const DataUpload = () => {
   };
 
   return (
-    <section className="p-4 min-h-[250px]">
+    <section className="p-4">
       <div className="flex flex-col items-center gap-3">
         <button
           type="button"
@@ -111,8 +114,8 @@ const DataUpload = () => {
           onChange={handleFileChange}
         />
         <p className="text-xs text-slate-400">
-          {files.length > 0
-            ? `${files.length}개 파일 준비됨`
+          {uploadedFileIdList.length > 0
+            ? `${uploadedFileIdList.length}개 파일 준비됨`
             : "파일을 선택해 데이터를 업로드하세요"}
         </p>
       </div>
@@ -129,10 +132,14 @@ const DataUpload = () => {
           Uploaded Files
         </p>
         <ul className="mt-3 space-y-2">
-          {files.map((file, index) => (
+          {uploadedFileIdList.map((fileId) => (
             <UploadedFileItem
-              key={`${file.name}-${index}`}
-              file={file}
+              key={fileId}
+              file={{
+                fileId: fileId,
+                name: fileId,
+                size: 10000,
+              }}
               selectedFileId={selectedFileIdList}
               handleSelectFile={handleSelectFile}
             />
@@ -143,8 +150,8 @@ const DataUpload = () => {
             isUploading
               ? "border-indigo-400 bg-indigo-50/70 text-indigo-500"
               : isDragging
-              ? "border-indigo-400 bg-indigo-50/70 text-indigo-500"
-              : "border-slate-300 text-slate-400"
+                ? "border-indigo-400 bg-indigo-50/70 text-indigo-500"
+                : "border-slate-300 text-slate-400"
           }`}
         >
           {isUploading ? (

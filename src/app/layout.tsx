@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { AlertRoot } from "@/components/common/providers/AlertProvider";
 import "./globals.css";
+import Providers from "@/components/common/providers";
 
 export const metadata: Metadata = {
   title: "Innocean Data Analysis - Renewal",
@@ -26,8 +26,7 @@ export default function RootLayout({
         className="antialiased"
         style={{ fontFamily: "'Pretendard', sans-serif" }}
       >
-        {children}
-        <AlertRoot />
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

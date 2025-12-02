@@ -1,5 +1,6 @@
 "use client";
 
+import dayjs from "dayjs";
 import {
   MessageSquare,
   MoreVertical,
@@ -7,28 +8,30 @@ import {
   Settings,
   Trash2,
 } from "lucide-react";
+import type { SessionInfo } from "@/apis/sessions";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { type SessionInfo, useSessionStore } from "@/stores/sessionStore";
+
+import { useSessionStore } from "@/stores/sessionStore";
 
 const SessionItem = ({ session }: { session: SessionInfo }) => {
-  const { id, projectSummary, analyticTarget, createdAt } = session;
+  const { session_id, name, description, created_at } = session;
   const { selectedSessionId, setSelectedSessionId } = useSessionStore();
-  const isSelected = selectedSessionId === id;
+  const isSelected = selectedSessionId === session_id;
   return (
     <div
-      key={id}
+      key={session_id}
       role="button"
       tabIndex={0}
-      onClick={() => setSelectedSessionId(id || null)}
+      onClick={() => setSelectedSessionId(session_id || null)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          setSelectedSessionId(id || null);
+          setSelectedSessionId(session_id || null);
         }
       }}
       className={`w-full flex items-start gap-3 px-3 py-3 rounded-lg transition-colors group cursor-pointer ${
@@ -42,7 +45,7 @@ const SessionItem = ({ session }: { session: SessionInfo }) => {
           <div className="mt-0.5 shrink-0 mr-2">
             <MessageSquare className="w-5 h-5 text-gray-300" />
           </div>
-          {projectSummary || analyticTarget || "새 분석"}
+          {name || description || "새 분석"}
           <span className="ml-1 text-xs font-normal text-gray-400">
             (오프라인)
           </span>
@@ -50,7 +53,7 @@ const SessionItem = ({ session }: { session: SessionInfo }) => {
         <div className="flex items-center gap-1.5 mt-1 text-xs text-gray-200">
           <span>0개 메시지</span>
           <span className="w-1 h-1 rounded-full bg-gray-400"></span>
-          <span>{createdAt?.format("YYYY-MM-DD HH:mm")}</span>
+          <span>{dayjs(created_at).format("YYYY-MM-DD HH:mm")}</span>
         </div>
       </div>
       <DropdownMenu>
