@@ -8,7 +8,11 @@ type RequestConfig<TBody = unknown> = Omit<RequestInit, "body" | "headers"> & {
   params?: Record<string, string | number | boolean>;
 };
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+// 프로덕션에서는 Next.js 프록시를 사용, 개발 환경에서는 직접 API 서버 사용
+const BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "/api/proxy"
+    : process.env.NEXT_PUBLIC_API_URL ?? "";
 
 const serializeParams = (params?: RequestConfig["params"]) =>
   params
