@@ -1,6 +1,6 @@
 "use client";
-import { useSessionStore } from "@/stores/sessionStore";
 import { Settings } from "lucide-react";
+import { useSessionStore } from "@/stores/sessionStore";
 import TabSection from "./TabSection";
 import Welcome from "./Welcome";
 

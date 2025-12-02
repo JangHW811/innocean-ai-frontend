@@ -17,7 +17,7 @@ export const useUpsertSessionInfo = () => {
 export const useSessionInfoList = () => {
   const { sessionInfoList } = useSessionStore();
   return useQuery({
-    queryKey: ["useSessionInfoList"],
+    queryKey: ["/api/sessions"],
     queryFn: () => {
       return sessionInfoList;
     },
