@@ -1,8 +1,5 @@
 "use client";
 
-import { FileText, Target } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { useUpsertSessionInfo } from "@/apis/sessions";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAlertActions } from "@/stores/alertStore";
+import { FileText, Target } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 const CreateSessionModal = () => {
   const [open, setOpen] = useState(false);
@@ -90,7 +90,7 @@ const CreateSessionModal = () => {
               <Input
                 id="name"
                 placeholder="예: 2024년 전기차 시장 트렌드 분석"
-                className="bg-slate-800 border-slate-600 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20"
+                isNagative
                 {...register("name")}
               />
               <p className="text-xs text-slate-500 ml-6">
@@ -111,7 +111,7 @@ const CreateSessionModal = () => {
               <Input
                 id="description"
                 placeholder="예: 브랜드별 선호도 및 구매 의도 파악"
-                className="bg-slate-800 border-slate-600 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20"
+                isNagative
                 {...register("description")}
               />
               <p className="text-xs text-slate-500 ml-6">
