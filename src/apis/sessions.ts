@@ -1,10 +1,10 @@
+import { useAuthStore } from "@/stores/authStore";
 import {
   useMutation,
   useQuery,
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useAuthStore } from "@/stores/authStore";
 import { http } from "./common";
 
 export interface SessionInfo {
@@ -14,9 +14,23 @@ export interface SessionInfo {
   description?: string;
   created_at: string;
   updated_at: string;
-  file_ids?: string[];
-  job_ids?: string[];
+  files?: SessionFile[];
+  jobs?: AnalysisJob[];
 }
+
+export interface SessionFile {
+  file_id: string;
+  filename: string;
+  size: number;
+}
+
+export interface AnalysisJob {
+  job_id: string;
+  task_type: string;
+  status: string;
+  created_at: string;
+}
+
 export const useUpsertSessionInfo = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -47,9 +61,12 @@ export const useSessionInfo = (sessionId: string | null) => {
 
 interface AnalysisJobsStartParams {
   session_id: string;
-  file_id: string[] | string;
+  file_ids: string[];
   params: {
     task_type: string;
+    user_request?: string;
+    preproc_requirements?: string;
+    first_step: boolean;
     options: Record<string, any>;
   };
 }
@@ -65,10 +82,14 @@ export const useAnalysisJobsStart = () => {
     {
       mutationFn: ({
         session_id,
-        file_id,
+        file_ids,
         params,
       }: AnalysisJobsStartParams) => {
-        return http.post(`/api/analysis-jobs`, { session_id, file_id, params });
+        return http.post(`/api/analysis-jobs`, {
+          session_id,
+          file_ids,
+          params,
+        });
       },
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
@@ -79,27 +100,6 @@ export const useAnalysisJobsStart = () => {
           ],
         });
       },
-    },
+    }
   );
-};
-
-export interface JobInfoRequest {
-  job_id: string;
-  status: string;
-  result: string;
-}
-
-export const useJobInfo = (jobId?: string | null) => {
-  const queryResult = useQuery({
-    queryKey: ["/api/analysis-jobs/:job_id", { job_id: jobId }],
-    enabled: !!jobId,
-  });
-
-  const { isSuccess } = queryResult;
-  if (isSuccess) {
-  }
-
-  console.log(queryResult);
-
-  return queryResult;
 };

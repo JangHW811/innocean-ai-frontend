@@ -9,13 +9,9 @@ import DataUpload from "./DataUpload";
 import NewSessionCard from "./NewSessionCard";
 
 export default function Sidebar() {
-  const { selectedSessionId } = useSessionStore();
+  const { selectedSessionId, selectedFileIdList } = useSessionStore();
 
   const { data: sessionInfo } = useSessionInfo(selectedSessionId || "");
-
-  const selectedFileIdList = useMemo(() => {
-    return sessionInfo?.file_ids || [];
-  }, [sessionInfo?.file_ids]);
 
   const { isFileVisible, isTaskVisible } = useMemo(() => {
     return {
@@ -44,7 +40,7 @@ export default function Sidebar() {
         className={cn(
           "flex flex-col transition-height duration-300 flex-6",
           isTaskVisible
-            ? "min-h-50 overflow-y-auto max-h-96"
+            ? "min-h-70 overflow-y-auto max-h-90"
             : "max-h-0 overflow-hidden"
         )}
       >

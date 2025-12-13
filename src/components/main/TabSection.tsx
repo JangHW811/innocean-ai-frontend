@@ -9,22 +9,22 @@ const TabSection = () => {
     useSessionStore();
   const { data: sessionInfo } = useSessionInfo(selectedSessionId);
 
-  const jobIds = sessionInfo?.job_ids || [];
+  const jobs = sessionInfo?.jobs || [];
 
-  console.log(selectedJobId);
+  console.log("jobs", jobs);
   return (
     <section className="flex-1 flex flex-col min-w-0 px-4 py-12">
       <Tabs
-        defaultValue={jobIds[0]}
+        defaultValue={jobs[0].job_id}
         onValueChange={(value) => setSelectedJobId(value)}
       >
         <TabsList>
-          {jobIds.map((jobId) => (
-            <TabItem key={jobId} jobId={jobId} />
+          {jobs.map((job) => (
+            <TabItem key={job.job_id} {...job} />
           ))}
         </TabsList>
-        {jobIds.map((jobId) => (
-          <TabContents key={jobId} jobId={jobId} />
+        {jobs.map((job) => (
+          <TabContents key={job.job_id} {...job} />
         ))}
       </Tabs>
     </section>

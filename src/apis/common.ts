@@ -44,7 +44,6 @@ async function request<TResponse, TBody = unknown>(
     ...headers,
   };
 
-  console.log("finalHeaders", finalHeaders);
   const res = await fetch(finalUrl, {
     method,
     body: finalBody,

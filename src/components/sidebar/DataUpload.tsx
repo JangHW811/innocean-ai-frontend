@@ -11,15 +11,14 @@ const DataUpload = () => {
   const {
     selectedSessionId,
     selectedFileIdList,
-    setSelectedFileIdList,
     removeSelectedFileId,
     addSelectedFileId,
   } = useSessionStore();
   const { data: sessionInfo } = useSessionInfo(selectedSessionId);
 
-  const uploadedFileIdList = useMemo(() => {
-    return sessionInfo?.file_ids || [];
-  }, [sessionInfo?.file_ids]);
+  const uploadedFileList = useMemo(() => {
+    return sessionInfo?.files || [];
+  }, [sessionInfo?.files]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -28,15 +27,10 @@ const DataUpload = () => {
     if (!incomingFiles.length) return;
     for (const file of incomingFiles) {
       try {
-        const result = await mutateAsync({
+        await mutateAsync({
           file,
           sessionId: selectedSessionId,
         });
-        // const uploaded: UploadedFile = {
-        //   fileId: result.file_id,
-        //   name: result.filename || file.name,
-        //   size: result.size || file.size,
-        // };
       } catch (error) {
         console.error("파일 업로드 실패", error);
       }
@@ -92,15 +86,14 @@ const DataUpload = () => {
       </p>
       <div className="p-4 pt-0">
         <ul className="mt-3 space-y-2">
-          {uploadedFileIdList.map((fileId) => (
+          {uploadedFileList.map((file) => (
             <UploadedFileItem
-              key={fileId}
+              key={file.file_id}
               file={{
-                fileId: fileId,
-                name: fileId,
-                size: 10000,
+                fileId: file.file_id,
+                name: file.filename,
+                size: file.size,
               }}
-              selectedFileId={selectedFileIdList}
               handleSelectFile={handleSelectFile}
             />
           ))}

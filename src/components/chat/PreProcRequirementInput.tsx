@@ -1,22 +1,43 @@
-import { useAnalysisJobsStart, useSessionInfo } from "@/apis/sessions";
+import { useAnalysisJobsStart } from "@/apis/sessions";
+import { useAlertActions } from "@/stores/alertStore";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useState } from "react";
 import { Button } from "../ui/button";
 
 const ChatInput = () => {
   const [preprocRequirements, setPreprocRequirements] = useState("");
-  const { selectedSessionId, selectedFileIdList, setSelectedJobType } =
-    useSessionStore();
-  const { data: sessionInfo } = useSessionInfo(selectedSessionId);
-  const { mutateAsync: startAnalysisJob } = useAnalysisJobsStart();
-  const handleAnalysisStart = () => {
-    startAnalysisJob({
-      session_id: selectedSessionId!,
-      file_id: sessionInfo?.file_ids?.[0] || "",
-      params: {
-        task_type: "needs_and_triggers",
-        // task_type: analysis.id,
-        options: {},
+  const { confirm } = useAlertActions();
+  const {
+    selectedSessionId,
+    selectedJobType,
+    selectedFileIdList,
+    setSelectedJobType,
+    setSelectedFileIdList,
+    setSelectedJobId,
+  } = useSessionStore();
+  const { mutateAsync: startAnalysisJob, isPending } = useAnalysisJobsStart();
+  const handleAnalysisStart = async () => {
+    const alertMessage = preprocRequirements
+      ? `분석을 시작하시겠습니까?`
+      : `전처리 요구사항 없이 분석을 시작하시겠습니까?`;
+    confirm({
+      title: "분석 시작",
+      description: alertMessage,
+      onConfirm: async () => {
+        const { job_id } = await startAnalysisJob({
+          session_id: selectedSessionId!,
+          file_ids: selectedFileIdList ?? [],
+          params: {
+            task_type: selectedJobType!,
+            preproc_requirements: preprocRequirements,
+            first_step: true,
+            user_request: "",
+            options: {},
+          },
+        });
+        setSelectedJobType(null);
+        setSelectedFileIdList([]);
+        setSelectedJobId(job_id);
       },
     });
   };
@@ -33,19 +54,13 @@ const ChatInput = () => {
           onChange={(event) => setPreprocRequirements(event.target.value)}
           placeholder="분석전처리 요구사항을 입력해주세요."
           className="w-full resize-none border-none bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              handleAnalysisStart();
-            }
-          }}
         />
       </div>
-      <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
-        <span>Shift + Enter = 줄바꿈</span>
+      <div className="mt-3 flex items-center justify-end text-xs text-slate-400">
         <Button
           onClick={handleAnalysisStart}
           type="button"
+          loading={isPending}
           className="rounded-full px-4 py-1.5 text-xs font-semibold text-white"
         >
           분석 시작

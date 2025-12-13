@@ -50,7 +50,7 @@ export const analysisCategories: AnalysisCategory[] = [
         icon: BarChart3,
       },
       {
-        id: "needs_and_triggers",
+        id: "category_usage_moment",
         title: "time 카테고리",
         description: "시간이 걸리도록 pending 상태 유지됨",
         icon: BarChart3,

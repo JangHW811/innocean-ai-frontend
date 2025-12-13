@@ -1,5 +1,12 @@
 "use client";
 
+import type { SessionInfo } from "@/apis/sessions";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import dayjs from "dayjs";
 import {
   MessageSquare,
@@ -8,13 +15,6 @@ import {
   Settings,
   Trash2,
 } from "lucide-react";
-import type { SessionInfo } from "@/apis/sessions";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import { useSessionStore } from "@/stores/sessionStore";
 
@@ -46,9 +46,6 @@ const SessionItem = ({ session }: { session: SessionInfo }) => {
             <MessageSquare className="w-5 h-5 text-gray-300" />
           </div>
           {name || description || "새 분석"}
-          <span className="ml-1 text-xs font-normal text-gray-400">
-            (오프라인)
-          </span>
         </div>
         <div className="flex items-center gap-1.5 mt-1 text-xs text-gray-200">
           <span>0개 메시지</span>
