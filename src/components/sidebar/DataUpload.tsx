@@ -1,9 +1,9 @@
 "use client";
-import { Loader2, UploadCloud } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
 import useFileUpload from "@/apis/file";
 import { useSessionInfo } from "@/apis/sessions";
 import { useSessionStore } from "@/stores/sessionStore";
+import { Loader2 } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
 import UploadedFileItem from "./UploadedFileItem";
 
 const DataUpload = () => {
@@ -86,51 +86,11 @@ const DataUpload = () => {
   };
 
   return (
-    <section className="p-4">
-      <div className="flex flex-col items-center gap-3">
-        <button
-          type="button"
-          onClick={handleBrowse}
-          disabled={isUploading}
-          className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-indigo-400 hover:text-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isUploading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              업로드 중...
-            </>
-          ) : (
-            <>
-              <UploadCloud className="h-4 w-4" />
-              파일 선택
-            </>
-          )}
-        </button>
-        <input
-          ref={inputRef}
-          type="file"
-          multiple
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        <p className="text-xs text-slate-400">
-          {uploadedFileIdList.length > 0
-            ? `${uploadedFileIdList.length}개 파일 준비됨`
-            : "파일을 선택해 데이터를 업로드하세요"}
-        </p>
-      </div>
-
-      <div
-        className="mt-6 w-full"
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        role="region"
-        aria-label="파일 업로드 드롭 영역"
-      >
-        <p className="text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-          Uploaded Files
-        </p>
+    <>
+      <p className="text-left p-4 pb-2 sticky bg-white top-0 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+        Uploaded Files
+      </p>
+      <div className="p-4 pt-0">
         <ul className="mt-3 space-y-2">
           {uploadedFileIdList.map((fileId) => (
             <UploadedFileItem
@@ -146,25 +106,42 @@ const DataUpload = () => {
           ))}
         </ul>
         <div
-          className={`mt-3 rounded-2xl border-2 border-dashed py-10 text-center text-xs transition ${
-            isUploading
-              ? "border-indigo-400 bg-indigo-50/70 text-indigo-500"
-              : isDragging
+          className="w-full"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={handleBrowse}
+          role="region"
+          aria-label="파일 업로드 드롭 영역"
+        >
+          <div
+            className={`mt-3 rounded-2xl border-2 border-dashed py-10 text-center text-xs transition ${
+              isUploading
+                ? "border-indigo-400 bg-indigo-50/70 text-indigo-500"
+                : isDragging
                 ? "border-indigo-400 bg-indigo-50/70 text-indigo-500"
                 : "border-slate-300 text-slate-400"
-          }`}
-        >
-          {isUploading ? (
-            <div className="flex flex-col items-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
-              <span className="text-indigo-500">파일 업로드 중...</span>
-            </div>
-          ) : (
-            "파일을 클릭하거나 드래그앤드롭으로 업로드하세요."
-          )}
+            }`}
+          >
+            {isUploading ? (
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
+                <span className="text-indigo-500">파일 업로드 중...</span>
+              </div>
+            ) : (
+              "파일을 클릭하거나 드래그앤드롭으로 업로드하세요."
+            )}
+          </div>
+          <input
+            ref={inputRef}
+            type="file"
+            multiple
+            className="hidden"
+            onChange={handleFileChange}
+          />
         </div>
       </div>
-    </section>
+    </>
   );
 };
 

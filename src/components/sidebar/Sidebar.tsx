@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
 import { useSessionInfo } from "@/apis/sessions";
 import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/stores/sessionStore";
+import { useMemo } from "react";
 import AvailableAnalysis from "./AvailableAnalysis";
 import DataUpload from "./DataUpload";
 import NewSessionCard from "./NewSessionCard";
@@ -24,23 +24,28 @@ export default function Sidebar() {
     };
   }, [selectedFileIdList, selectedSessionId]);
 
+  console.log("selectedFileIdList", selectedFileIdList, isTaskVisible);
   return (
-    <aside className="w-82 bg-white border-r border-gray-200 flex flex-col h-full shadow-sm z-10">
-      <section className="bg-slate-900 transition-all duration-300 flex-1">
+    <aside className="w-82 bg-white border-r border-gray-200 flex flex-col h-full min-h-0 shadow-sm z-10">
+      <section className="bg-slate-900 transition-all duration-300 flex-6 min-h-48 flex flex-col">
         <NewSessionCard />
       </section>
       <section
         className={cn(
-          "overflow-y-auto transition-height duration-300",
-          isFileVisible ? "max-h-80 h-auto min-h-66" : "max-h-0",
+          "transition-height duration-300 flex-2",
+          isFileVisible
+            ? "min-h-40 overflow-y-auto max-h-56"
+            : "max-h-0 overflow-hidden"
         )}
       >
         <DataUpload />
       </section>
       <section
         className={cn(
-          "overflow-y-auto transition-height duration-300",
-          isTaskVisible ? "max-h-160 h-auto" : "max-h-0",
+          "flex flex-col transition-height duration-300 flex-6",
+          isTaskVisible
+            ? "min-h-50 overflow-y-auto max-h-96"
+            : "max-h-0 overflow-hidden"
         )}
       >
         <AvailableAnalysis />

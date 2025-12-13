@@ -1,6 +1,6 @@
-import { MessageSquare } from "lucide-react";
 import { useSessionInfoList } from "@/apis/sessions";
-import CreateSessionModal from "./CreateSessionModal";
+import { MessageSquare } from "lucide-react";
+import CreateSessionModal from "../modals/CreateSessionModal";
 import SessionList from "./SessionList";
 
 export default function NewSessionCard() {
@@ -16,9 +16,9 @@ export default function NewSessionCard() {
     </div>
   );
   return (
-    <div className="p-5 text-white shadow-lg relative overflow-hidden group">
-      <div className="relative z-10 flex flex-col items-center text-center space-y-3">
-        <div className="w-full">
+    <div className="p-5 text-white shadow-lg relative overflow-hidden group h-full flex flex-col min-h-0">
+      <div className="relative z-10 flex flex-col items-center text-center space-y-3 flex-1 min-h-0">
+        <div className="w-full flex flex-col flex-1 min-h-0">
           {isEmpty ? emptyContent : <SessionList />}
           <CreateSessionModal />
         </div>

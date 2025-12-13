@@ -1,7 +1,8 @@
 import {
+  BarChart3,
   LucideIcon,
   NotebookPen,
-  ShieldCheck,
+  Target,
   UploadCloud,
 } from "lucide-react";
 const ChatGuide = () => {
@@ -11,22 +12,22 @@ const ChatGuide = () => {
         Welcome
       </p>
       <p className="mt-3 text-sm text-slate-500">
-        세션을 만든후 분석을 위한 파일을 업로드 하고 Analysis를 선택 후 대화를
-        시작하세요.
+        데이터를 업로드하여 분석을 시작해보세요.
       </p>
 
       <div className="mt-8 grid gap-3 text-left text-sm text-slate-500">
         <MiniPoint
-          icon={ShieldCheck}
-          label="데이터는 안전하게 암호화 저장됩니다."
-        />
-        <MiniPoint
-          icon={NotebookPen}
-          label="대화를 시작하면 리포트 초안이 자동 생성됩니다."
+          icon={Target}
+          label="분석목표를 설정하고 세션을 생성하세요."
         />
         <MiniPoint
           icon={UploadCloud}
-          label="최대 50MB까지 CSV, XLSX 업로드 지원."
+          label="파일을 업로드하고 분석에 필요한 데이터를 선택하세요."
+        />
+        <MiniPoint icon={BarChart3} label="원하는 분석타입을 선택해주세요." />
+        <MiniPoint
+          icon={NotebookPen}
+          label="전처리 요구사항을 입력하여 분석을 시작하세요."
         />
       </div>
     </div>

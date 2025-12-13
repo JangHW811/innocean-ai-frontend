@@ -1,6 +1,6 @@
+import type { SessionInfo } from "@/apis/sessions";
 import type { Dayjs } from "dayjs";
 import { create } from "zustand";
-import type { SessionInfo } from "@/apis/sessions";
 
 export interface LocalSessionInfo extends SessionInfo {
   id?: string;
@@ -20,11 +20,19 @@ interface SessionStoreState {
 
   selectedJobId: string | null;
   setSelectedJobId: (id: string | null) => void;
+
+  selectedJobType: string | null;
+  setSelectedJobType: (type: string | null) => void;
 }
 
 export const useSessionStore = create<SessionStoreState>((set) => ({
   selectedSessionId: null,
-  setSelectedSessionId: (id) => set({ selectedSessionId: id }),
+  setSelectedSessionId: (id) =>
+    set({
+      selectedSessionId: id,
+      selectedJobType: null,
+      selectedFileIdList: [],
+    }),
 
   selectedFileIdList: [],
   setSelectedFileIdList: (idList) => set({ selectedFileIdList: idList }),
@@ -38,4 +46,7 @@ export const useSessionStore = create<SessionStoreState>((set) => ({
 
   selectedJobId: null,
   setSelectedJobId: (id) => set({ selectedJobId: id }),
+
+  selectedJobType: null,
+  setSelectedJobType: (type) => set({ selectedJobType: type }),
 }));
