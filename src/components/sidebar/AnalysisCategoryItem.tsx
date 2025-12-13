@@ -10,15 +10,14 @@ interface AnalysisCategoryItemProps {
     };
   };
   title: string;
-  onClick?: () => void;
+  onShowConfirmAnalysisModal?: () => void;
 }
 
 export default function AnalysisCategoryItem({
   categories,
-  onClick,
+  onShowConfirmAnalysisModal,
   title,
 }: AnalysisCategoryItemProps) {
-  // const Icon = category.icon;
   const [isOpen, setIsOpen] = useState(false);
 
   const items = Object.entries(categories).map(([key, value]) => {
@@ -34,7 +33,6 @@ export default function AnalysisCategoryItem({
         type="button"
         onClick={() => {
           setIsOpen((prev) => !prev);
-          onClick?.();
         }}
         className="sidebar-item flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors group w-full text-left"
         aria-expanded={isOpen}
@@ -57,7 +55,11 @@ export default function AnalysisCategoryItem({
       {isOpen && (
         <ul className="ml-4 mt-2 space-y-1 text-xs text-gray-500">
           {items?.map((analysis) => (
-            <AnalysisItem key={analysis.id} analysis={analysis} />
+            <AnalysisItem
+              key={analysis.id}
+              analysis={analysis}
+              onShowConfirmAnalysisModal={onShowConfirmAnalysisModal}
+            />
           ))}
         </ul>
       )}
@@ -67,11 +69,12 @@ export default function AnalysisCategoryItem({
 
 const AnalysisItem = ({
   analysis,
+  onShowConfirmAnalysisModal,
 }: {
   analysis: { id: string; title: string };
+  onShowConfirmAnalysisModal?: () => void;
 }) => {
   const { setSelectedJobType, selectedJobType } = useSessionStore();
-  // const AnalysisIcon = analysis.icon;
 
   const containerClassName = cn(
     "cursor-pointer flex items-start gap-2 rounded-lg px-3 py-3 hover:bg-gray-50 hover:text-gray-800 transition-colors",
@@ -80,6 +83,7 @@ const AnalysisItem = ({
 
   const handleSelectAnalysis = () => {
     setSelectedJobType(analysis.id);
+    onShowConfirmAnalysisModal?.();
   };
   return (
     <li
@@ -97,12 +101,8 @@ const AnalysisItem = ({
       }}
       className={containerClassName}
     >
-      {/* <span className="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-500">
-        <AnalysisIcon className="h-3.5 w-3.5" />
-      </span> */}
       <div>
         <div className="font-medium text-gray-700">{analysis.title}</div>
-        {/* <div className="text-[11px] text-gray-400">{analysis.description}</div> */}
       </div>
     </li>
   );

@@ -1,5 +1,5 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSessionStore } from "@/stores/sessionStore";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { http } from "./common";
 
 export interface FileUploadParams {
@@ -35,4 +35,16 @@ const useFileUpload = () => {
   });
 };
 
+interface FileDownloadRequest {
+  filename: string;
+  session_id: string;
+}
+
+export const useFileDownload = () => {
+  return useMutation<string, Error, FileDownloadRequest>({
+    mutationFn: async ({ filename, session_id }: FileDownloadRequest) => {
+      return await http.get(`/api/workspace/${session_id}/${filename}`);
+    },
+  });
+};
 export default useFileUpload;

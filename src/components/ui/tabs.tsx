@@ -12,7 +12,7 @@ function Tabs({
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
-      className={cn("flex flex-col w-full", className)}
+      className={cn("flex flex-col w-full min-h-0", className)}
       {...props}
     />
   );
@@ -57,7 +57,7 @@ function TabsContent({
   return (
     <TabsPrimitive.Content
       data-slot="tabs-content"
-      className={cn("flex-1 outline-none", className)}
+      className={cn("flex-1 outline-none min-h-0", className)}
       {...props}
     />
   );

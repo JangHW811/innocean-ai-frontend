@@ -11,7 +11,7 @@ export default function MainContent() {
   const { data } = useSessionInfo(selectedSessionId);
   const isJobStarted = data?.jobs && data.jobs.length > 0;
   return (
-    <main className="flex-1 flex flex-col min-w-0 bg-white">
+    <main className="flex-1 flex flex-col min-w-0 bg-white h-full min-h-0">
       {isJobStarted ? <TabSection /> : <Welcome />}
       <SettingsMenu />
     </main>

@@ -14,5 +14,12 @@ export interface MethodsResponse {
 export const useMethods = () => {
   return useQuery<MethodsResponse>({
     queryKey: ["/api/methods"],
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
   });
 };

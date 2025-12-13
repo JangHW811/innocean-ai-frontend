@@ -60,9 +60,39 @@ async function request<TResponse, TBody = unknown>(
   return (await res.json()) as TResponse;
 }
 
+async function requestText(
+  url: string,
+  { method = "GET", body, params, headers, ...rest }: RequestConfig = {}
+): Promise<string> {
+  const finalUrl = `${BASE_URL}${url}${serializeParams(params)}`;
+  const finalBody = buildBody(body);
+  const isForm = finalBody instanceof FormData;
+  const finalHeaders = {
+    ...(isForm ? {} : { "Content-Type": "application/json" }),
+    ...headers,
+  };
+
+  const res = await fetch(finalUrl, {
+    method,
+    body: finalBody,
+    headers: finalHeaders,
+    ...rest,
+  });
+
+  if (!res.ok) {
+    const errorBody = await res.text();
+    throw new Error(`[${res.status}] ${errorBody}`);
+  }
+
+  if (res.status === 204) return "";
+  return await res.text();
+}
+
 export const http = {
   get: <T>(url: string, config?: RequestConfig) =>
     request<T>(url, { ...config, method: "GET" }),
+  getText: (url: string, config?: RequestConfig) =>
+    requestText(url, { ...config, method: "GET" }),
   post: <T, B = unknown>(url: string, body?: B, config?: RequestConfig<B>) =>
     request<T, B>(url, { ...config, method: "POST", body }),
   put: <T, B = unknown>(url: string, body?: B, config?: RequestConfig<B>) =>

@@ -5,20 +5,22 @@ import TabContents from "./TabContents";
 import TabItem from "./TabItem";
 
 const TabSection = () => {
-  const { selectedJobId, setSelectedJobId, selectedSessionId } =
+  const { setSelectedJobId, selectedSessionId, selectedJobId } =
     useSessionStore();
   const { data: sessionInfo } = useSessionInfo(selectedSessionId);
 
-  const jobs = sessionInfo?.jobs || [];
+  const jobs = [...(sessionInfo?.jobs ?? [])].reverse() || [];
 
   console.log("jobs", jobs);
   return (
-    <section className="flex-1 flex flex-col min-w-0 px-4 py-12">
+    <section className="flex-1 flex flex-col min-w-0 px-4 py-12 h-full min-h-0">
       <Tabs
-        defaultValue={jobs[0].job_id}
+        defaultValue={jobs[0]?.job_id}
+        value={selectedJobId ?? jobs[0]?.job_id ?? ""}
         onValueChange={(value) => setSelectedJobId(value)}
+        className="flex flex-col h-full min-h-0"
       >
-        <TabsList>
+        <TabsList className="shrink-0">
           {jobs.map((job) => (
             <TabItem key={job.job_id} {...job} />
           ))}
