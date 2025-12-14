@@ -14,6 +14,9 @@ const ArtifactContents = ({
 }: ArtifactInfo) => {
   const { data: artifact, isLoading } = useArtifact(artifact_id);
 
+  const linkUrl = useMemo(() => {
+    return `${process.env.NEXT_PUBLIC_API_URL || ""}${url}`;
+  }, [url]);
   if (isLoading) {
     return (
       <div className="mb-6 rounded-lg border border-slate-200 bg-white shadow-sm p-8">
@@ -23,10 +26,6 @@ const ArtifactContents = ({
       </div>
     );
   }
-
-  const linkUrl = useMemo(() => {
-    return `${process.env.NEXT_PUBLIC_API_URL || ""}${url}`;
-  }, [url]);
 
   const handleFileDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -54,7 +53,11 @@ const ArtifactContents = ({
   return (
     <details className="mb-6 rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden group">
       <summary className="border-b border-slate-200 bg-slate-50 px-4 py-3 cursor-pointer hover:bg-slate-100 transition-colors duration-200 flex items-center justify-between list-none">
-        <a href={linkUrl} onClick={handleFileDownload} className="cursor-pointer">
+        <a
+          href={linkUrl}
+          onClick={handleFileDownload}
+          className="cursor-pointer"
+        >
           <h3 className="text-sm font-semibold text-blue-600 underline">
             {filename}
           </h3>
