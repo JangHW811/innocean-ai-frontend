@@ -17,7 +17,7 @@ const DataUpload = () => {
   const { data: sessionInfo } = useSessionInfo(selectedSessionId);
 
   const uploadedFileList = useMemo(() => {
-    return sessionInfo?.files || [];
+    return sessionInfo?.files?.filter((file) => file.source === "upload") || [];
   }, [sessionInfo?.files]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);

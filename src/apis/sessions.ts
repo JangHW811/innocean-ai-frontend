@@ -22,6 +22,7 @@ export interface SessionFile {
   file_id: string;
   filename: string;
   size: number;
+  source: "upload" | "artifact";
 }
 
 export interface AnalysisJob {
