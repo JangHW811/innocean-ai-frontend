@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.API_URL || "http://3.38.141.170:8000";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://3.38.141.170:8000";
 
 export async function GET(
   request: NextRequest,

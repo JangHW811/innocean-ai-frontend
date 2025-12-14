@@ -40,10 +40,8 @@ echo "✅ Yarn 버전: $(yarn -v)"
 if [ ! -f .env.production ]; then
     echo "⚠️  .env.production 파일이 없습니다. 생성합니다..."
     cat > .env.production << EOF
-# 백엔드 API 서버 주소 (프록시에서 사용)
-API_URL=http://3.38.141.170:8000
 # 클라이언트에서 직접 사용할 API URL (프록시 사용 시 불필요)
-NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_API_URL=http://3.38.141.170:8000
 NODE_ENV=production
 PORT=3000
 EOF
