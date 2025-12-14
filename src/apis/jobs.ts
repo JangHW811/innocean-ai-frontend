@@ -11,6 +11,8 @@ export interface JobInfoResponse {
   job_id: string;
   status: string;
   steps: Step[];
+  task_type: string;
+  filenames: string[];
 }
 
 type Step = {

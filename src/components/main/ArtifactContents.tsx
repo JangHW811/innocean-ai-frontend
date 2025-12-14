@@ -1,5 +1,7 @@
 import { useArtifact } from "@/apis/artifact";
 import { ArtifactInfo } from "@/apis/jobs";
+import { ChevronDown } from "lucide-react";
+import { useMemo } from "react";
 import ChartImage from "./ChartImage";
 import MarkdownReport from "./MarkdownReport";
 import TableCsv from "./TableCsv";
@@ -16,20 +18,27 @@ const ArtifactContents = ({
     return (
       <div className="mb-6 rounded-lg border border-slate-200 bg-white shadow-sm p-8">
         <div className="animate-pulse">
-          <div className="h-64 w-full rounded bg-slate-200"></div>
+          <div className="h-24 w-full rounded bg-slate-200"></div>
         </div>
       </div>
     );
   }
 
+  const linkUrl = useMemo(() => {
+    return `${process.env.NEXT_PUBLIC_API_URL || ""}${url}`;
+  }, [url]);
+
   return (
-    <div className="mb-6 rounded-lg border border-slate-200 bg-white shadow-sm">
-      {filename && (
-        <div className="border-b border-slate-200 bg-slate-50 px-4 py-3">
-          <h3 className="text-sm font-semibold text-slate-700">{filename}</h3>
-        </div>
-      )}
-      <div className="p-8">
+    <details className="mb-6 rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden group">
+      <summary className="border-b border-slate-200 bg-slate-50 px-4 py-3 cursor-pointer hover:bg-slate-100 transition-colors duration-200 flex items-center justify-between list-none">
+        <a href={linkUrl} target="_blank" rel="noopener noreferrer">
+          <h3 className="text-sm font-semibold text-blue-600 underline">
+            {filename}
+          </h3>
+        </a>
+        <ChevronDown className="h-8 w-8 text-slate-500 transition-transform duration-200 group-open:rotate-180 shrink-0 ml-2" />
+      </summary>
+      <div className="p-8 animate-in fade-in slide-in-from-top-2 duration-200">
         {rest.type === "table_csv" ? (
           <TableCsv
             artifact_id={artifact_id}
@@ -50,7 +59,7 @@ const ArtifactContents = ({
           <MarkdownReport artifact_id={artifact_id} filename={filename} />
         ) : null}
       </div>
-    </div>
+    </details>
   );
 };
 

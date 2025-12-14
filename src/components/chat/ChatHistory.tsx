@@ -1,9 +1,13 @@
 import { useJobInfo } from "@/apis/jobs";
 import { useSessionStore } from "@/stores/sessionStore";
 import { Bot, User } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
-const ChatHistory = () => {
+const ChatHistory = ({
+  scrollContainerRef,
+}: {
+  scrollContainerRef: React.RefObject<HTMLDivElement>;
+}) => {
   const { selectedJobId } = useSessionStore();
   const { data: jobInfo } = useJobInfo(selectedJobId);
 
@@ -19,12 +23,25 @@ const ChatHistory = () => {
     });
   };
 
+  useEffect(() => {
+    if (messages.length > 0) {
+      const container = scrollContainerRef.current;
+      if (container) {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: "auto",
+        });
+      }
+    }
+  }, [messages, scrollContainerRef]);
+
   if (messages.length === 0) {
     return null;
   }
 
+  console.log("ChatHistory", messages);
   return (
-    <div className="w-full max-w-3xl flex-1 overflow-y-auto px-4 py-6">
+    <div className="w-full max-w-3xl flex-1 px-4 py-6">
       <div className="space-y-4">
         {messages.map((message, index) => {
           const isUser = message.role === "user";

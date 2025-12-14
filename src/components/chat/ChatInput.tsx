@@ -1,18 +1,18 @@
 import { useJobInfo } from "@/apis/jobs";
 import { useAnalysisJobsStart, useSessionInfo } from "@/apis/sessions";
 import { useSessionStore } from "@/stores/sessionStore";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 
 const ChatInput = () => {
-  const { selectedJobId } = useSessionStore();
-  const { selectedSessionId } = useSessionStore();
+  const { selectedJobId, selectedSessionId } = useSessionStore();
   const { data: jobInfo } = useJobInfo(selectedJobId);
   const { data: sessionInfo } = useSessionInfo(selectedSessionId);
-  const { mutateAsync: sendMessage } = useAnalysisJobsStart();
   const { isRunning } = jobInfo || {};
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const { mutateAsync: sendMessage } = useAnalysisJobsStart();
 
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
@@ -42,8 +42,12 @@ const ChatInput = () => {
     setMessage(event.target.value);
   };
 
-  const handleSendMessage = () => {
-    setMessage("");
+  const handleSendMessage = useCallback(() => {
+    // 즉시 textarea와 state 모두 초기화
+    if (textareaRef.current) {
+      textareaRef.current.value = "";
+      textareaRef.current.style.height = "auto";
+    }
     sendMessage({
       session_id: selectedSessionId!,
       job_id: selectedJobId!,
@@ -54,14 +58,11 @@ const ChatInput = () => {
         first_step: false,
       },
     });
-
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
-  };
-  console.log("selectedJobId", selectedJobId);
+    console.log("sendMessage", message);
+    setMessage("");
+  }, [message]);
   return (
-    <div className="w-full max-w-3xl rounded-3xl border border-slate-200 bg-white/90 shadow-lg backdrop-blur px-6 py-5">
+    <div className="w-full max-w-3xl rounded-t-3xl rounded-b-none border border-slate-200 bg-white/90 shadow-lg backdrop-blur px-6 py-5 sticky bottom-0 mx-[-12px] ">
       <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-400">
         <span>Chat Input</span>
         <span>Ready</span>
@@ -76,8 +77,13 @@ const ChatInput = () => {
           className="w-full resize-none border-none bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none overflow-hidden"
           style={{ minHeight: "22px", maxHeight: "120px" }}
           onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
+            event.preventDefault();
+            event.stopPropagation();
+            if (
+              event.key === "Enter" &&
+              !event.shiftKey &&
+              !event.nativeEvent.isComposing
+            ) {
               handleSendMessage();
             }
           }}

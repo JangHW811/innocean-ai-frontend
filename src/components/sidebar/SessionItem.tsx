@@ -20,18 +20,26 @@ import { useSessionStore } from "@/stores/sessionStore";
 
 const SessionItem = ({ session }: { session: SessionInfo }) => {
   const { session_id, name, description, created_at } = session;
-  const { selectedSessionId, setSelectedSessionId } = useSessionStore();
+  const { selectedSessionId, setSelectedSessionId, setSelectedJobId } =
+    useSessionStore();
   const isSelected = selectedSessionId === session_id;
+
+  const handleSelectSession = () => {
+    setSelectedSessionId(session_id || null);
+
+    console.log("session.jobs", session, session.jobs?.[0]?.job_id);
+    setSelectedJobId(session.jobs?.[0]?.job_id || null);
+  };
   return (
     <div
       key={session_id}
       role="button"
       tabIndex={0}
-      onClick={() => setSelectedSessionId(session_id || null)}
+      onClick={handleSelectSession}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          setSelectedSessionId(session_id || null);
+          handleSelectSession();
         }
       }}
       className={`w-full flex items-start gap-3 px-3 py-3 rounded-lg transition-colors group cursor-pointer ${

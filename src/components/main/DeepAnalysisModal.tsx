@@ -1,6 +1,5 @@
 "use client";
 
-import { useUpsertSessionInfo } from "@/apis/sessions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAlertActions } from "@/stores/alertStore";
 import { List, Pencil, Target, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -27,9 +25,7 @@ import { Input } from "../ui/input";
 
 const DeepAnalysisModal = () => {
   const [open, setOpen] = useState(false);
-  const { confirm } = useAlertActions();
   const methods = useForm();
-  const { mutateAsync: upsertSessionInfo } = useUpsertSessionInfo();
   const { register, handleSubmit, reset } = methods;
   const onSubmit = async (data: any) => {};
   const onError = (errors: any) => {

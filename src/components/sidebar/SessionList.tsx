@@ -1,18 +1,35 @@
 "use client";
 
-import { type SessionInfo, useSessionInfoList } from "@/apis/sessions";
+import {
+  type SessionInfo,
+  useSessionInfo,
+  useSessionInfoList,
+} from "@/apis/sessions";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useEffect } from "react";
 import SessionItem from "./SessionItem";
 
 const SessionList = () => {
   const { data: sessionInfoList } = useSessionInfoList();
-  const { setSelectedSessionId } = useSessionStore();
+  const {
+    setSelectedSessionId,
+    selectedJobId,
+    setSelectedJobId,
+    selectedSessionId,
+  } = useSessionStore();
+  const { data: jobInfo } = useSessionInfo(selectedSessionId);
+
   useEffect(() => {
     if (sessionInfoList && sessionInfoList.length > 0) {
       setSelectedSessionId(sessionInfoList[0].session_id || null);
     }
   }, [sessionInfoList, setSelectedSessionId]);
+
+  useEffect(() => {
+    if (!selectedJobId) {
+      setSelectedJobId(jobInfo?.jobs?.[0]?.job_id || null);
+    }
+  }, [selectedJobId, jobInfo?.jobs?.[0]?.job_id, setSelectedJobId]);
 
   if (!sessionInfoList || sessionInfoList.length === 0) return null;
 

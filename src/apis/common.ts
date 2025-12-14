@@ -156,7 +156,6 @@ async function request<TResponse, TBody = unknown>(
   }: RequestConfig<TBody> = {}
 ): Promise<TResponse> {
   const finalUrl = `${BASE_URL}${url}${serializeParams(params)}`;
-  console.log("finalUrl", finalUrl);
   const finalBody = buildBody(body);
   const isForm = finalBody instanceof FormData;
   const finalHeaders = {

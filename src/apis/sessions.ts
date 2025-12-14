@@ -84,16 +84,8 @@ export const useAnalysisJobsStart = () => {
     Error,
     AnalysisJobsStartRequest
   >({
-    mutationFn: ({
-      session_id,
-      file_ids,
-      params,
-    }: AnalysisJobsStartRequest) => {
-      return http.post(`/api/analysis-jobs`, {
-        session_id,
-        file_ids,
-        params,
-      });
+    mutationFn: (params: AnalysisJobsStartRequest) => {
+      return http.post(`/api/analysis-jobs`, params);
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
