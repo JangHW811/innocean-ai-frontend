@@ -50,7 +50,7 @@ const TableCsv = ({ artifact_id, filename }: ArtifactInfo) => {
       urlMatches.length === 1 &&
       trimmedValue.replace(urlMatches[0], "").trim() === ""
     ) {
-      const url = urlMatches[0].startsWith("http")
+      const url = urlMatches[0].toLowerCase().startsWith("http")
         ? urlMatches[0]
         : `https://${urlMatches[0]}`;
       return (
@@ -77,8 +77,8 @@ const TableCsv = ({ artifact_id, filename }: ArtifactInfo) => {
         parts.push(trimmedValue.substring(lastIndex, urlIndex));
       }
 
-      // URL을 링크로 변환
-      const url = urlMatch.startsWith("http")
+      // URL을 링크로 변환 (대소문자 구분 없이)
+      const url = urlMatch.toLowerCase().startsWith("http")
         ? urlMatch
         : `https://${urlMatch}`;
       parts.push(
