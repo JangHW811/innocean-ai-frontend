@@ -27,13 +27,13 @@ npm -v
 # Yarn 설치
 echo ""
 echo "📦 Yarn을 설치합니다..."
-npm install -g yarn
+sudo npm install -g yarn
 echo "✅ Yarn 버전: $(yarn -v)"
 
 # PM2 설치 (프로세스 관리자)
 echo ""
 echo "📦 PM2를 설치합니다..."
-npm install -g pm2
+sudo npm install -g pm2
 echo "✅ PM2 버전: $(pm2 -v)"
 
 # Git 설치 확인 및 설치

@@ -31,7 +31,7 @@ echo "✅ Node.js 버전: $(node -v)"
 # Yarn 설치 확인
 if ! command -v yarn &> /dev/null; then
     echo "📦 Yarn을 설치합니다..."
-    npm install -g yarn
+    sudo npm install -g yarn
 fi
 
 echo "✅ Yarn 버전: $(yarn -v)"
