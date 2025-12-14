@@ -7,10 +7,10 @@ import ArtifactContents from "./ArtifactContents";
 interface TabSectionProps extends AnalysisJob {}
 
 const TabContents = ({ job_id }: TabSectionProps) => {
-  const { data: jobInfo, refetch, isEnabled } = useJobInfo(job_id);
+  const { data: jobInfo } = useJobInfo(job_id);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
   const { isFailed, isRunning } = jobInfo || {};
+
   const contents = useMemo(() => {
     const artifacts = jobInfo?.steps?.flatMap((step) => step.artifacts) ?? [];
     return artifacts;
