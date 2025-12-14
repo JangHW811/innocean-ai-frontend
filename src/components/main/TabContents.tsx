@@ -1,4 +1,4 @@
-import { useJobInfo } from "@/apis/jobs";
+import { ArtifactInfo, useJobInfo } from "@/apis/jobs";
 import { AnalysisJob } from "@/apis/sessions";
 import { useEffect, useMemo, useRef } from "react";
 import DeepAnalysisModal from "../modals/DeepAnalysisModal";
@@ -12,9 +12,36 @@ const TabContents = ({ job_id }: TabSectionProps) => {
   const { isFailed, isRunning } = jobInfo || {};
 
   const contents = useMemo(() => {
-    const artifacts = jobInfo?.steps?.flatMap((step) => step.artifacts) ?? [];
+    const artifacts =
+      jobInfo?.steps?.flatMap((step) => {
+        const userMessage = step.messages.find(
+          (message) => message.role === "user"
+        );
+
+        return [
+          ...step.artifacts,
+          ...(userMessage
+            ? [{ ...userMessage, artifact_id: `user-message-${step.step}` }]
+            : []),
+        ];
+      }) ?? [];
     return artifacts;
   }, [jobInfo?.steps]);
+
+  // 실제 artifact만 필터링하여 순차번호 계산
+  const artifactSequenceMap = useMemo(() => {
+    const map = new Map<string, number>();
+    let sequence = 0;
+    contents.forEach((item) => {
+      if (!item.artifact_id.startsWith("user-message-")) {
+        sequence++;
+        map.set(item.artifact_id, sequence);
+      }
+    });
+    return map;
+  }, [contents]);
+
+  console.log(contents);
 
   // contents가 변경될 때마다 스크롤을 최하단으로 이동
   useEffect(() => {
@@ -80,9 +107,28 @@ const TabContents = ({ job_id }: TabSectionProps) => {
             </div>
           </div>
         )}
-        {contents.map((artifact) => (
-          <ArtifactContents key={artifact.artifact_id} {...artifact} />
-        ))}
+        <section className="space-y-6">
+          {contents.map((artifact) => {
+            return artifact.artifact_id.startsWith("user-message-") ? (
+              <div
+                key={artifact.artifact_id}
+                className="my-8 flex items-center"
+              >
+                <div className="flex-1 h-px bg-slate-200"></div>
+                <div className="px-4 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-slate-400"></div>
+                </div>
+                <div className="flex-1 h-px bg-slate-200"></div>
+              </div>
+            ) : (
+              <ArtifactContents
+                key={artifact.artifact_id}
+                {...(artifact as ArtifactInfo)}
+                sequenceNumber={artifactSequenceMap.get(artifact.artifact_id)}
+              />
+            );
+          })}
+        </section>
         {isRunning ? (
           <TabContentsSkeleton />
         ) : (

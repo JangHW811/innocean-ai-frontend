@@ -101,7 +101,7 @@ export const useAnalysisJobsStart = () => {
         ],
       });
       queryClient.invalidateQueries({
-        queryKey: ["/api/analysis-jobs/:job_id"],
+        queryKey: ["/api/analysis-jobs/:job_id", { job_id: variables.job_id }],
       });
     },
   });

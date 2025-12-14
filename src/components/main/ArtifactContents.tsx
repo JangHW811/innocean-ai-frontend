@@ -6,12 +6,17 @@ import ChartImage from "./ChartImage";
 import MarkdownReport from "./MarkdownReport";
 import TableCsv from "./TableCsv";
 
+interface ArtifactContentsProps extends ArtifactInfo {
+  sequenceNumber?: number;
+}
+
 const ArtifactContents = ({
   artifact_id,
   filename,
   url,
+  sequenceNumber,
   ...rest
-}: ArtifactInfo) => {
+}: ArtifactContentsProps) => {
   const { data: artifact, isLoading } = useArtifact(artifact_id);
 
   const linkUrl = useMemo(() => {
@@ -19,7 +24,7 @@ const ArtifactContents = ({
   }, [url]);
   if (isLoading) {
     return (
-      <div className="mb-6 rounded-lg border border-slate-200 bg-white shadow-sm p-8">
+      <div className="rounded-lg border border-slate-200 bg-white shadow-sm p-8">
         <div className="animate-pulse">
           <div className="h-24 w-full rounded bg-slate-200"></div>
         </div>
@@ -51,13 +56,18 @@ const ArtifactContents = ({
   };
 
   return (
-    <details className="mb-6 rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden group">
+    <details className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden group">
       <summary className="border-b border-slate-200 bg-slate-50 px-4 py-3 cursor-pointer hover:bg-slate-100 transition-colors duration-200 flex items-center justify-between list-none">
         <a
           href={linkUrl}
           onClick={handleFileDownload}
-          className="cursor-pointer"
+          className="cursor-pointer flex items-center gap-2"
         >
+          {sequenceNumber && (
+            <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-indigo-100 text-indigo-600 text-xs font-semibold shrink-0">
+              {sequenceNumber}
+            </span>
+          )}
           <h3 className="text-sm font-semibold text-blue-600 underline">
             {filename}
           </h3>
