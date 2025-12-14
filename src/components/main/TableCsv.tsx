@@ -8,7 +8,6 @@ import { useMemo } from "react";
 
 const TableCsv = ({ artifact_id, filename }: ArtifactInfo) => {
   const { data: artifact, isLoading } = useArtifact(artifact_id);
-
   const parsedData = useMemo(() => {
     if (!artifact) return { headers: [], rows: [] };
 
@@ -28,9 +27,8 @@ const TableCsv = ({ artifact_id, filename }: ArtifactInfo) => {
     return { headers, rows };
   }, [artifact]);
 
-  // URL 패턴 정규식
-  const urlRegex =
-    /(https?:\/\/[^\s<>"{}|\\^`[\]]+|www\.[^\s<>"{}|\\^`[\]]+|[\w\-]+(\.[\w\-]+)+(\/[^\s<>"{}|\\^`[\]]*)?)/gi;
+  // URL 패턴 정규식 (http:// 또는 https://로 시작하는 것만)
+  const urlRegex = /https?:\/\/[^\s<>"{}|\\^`[\]]+/gi;
 
   // 텍스트에서 URL을 찾아 링크로 변환하는 함수
   const renderCellContent = (cellValue: string): ReactNode => {
