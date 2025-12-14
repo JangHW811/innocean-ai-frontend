@@ -118,10 +118,14 @@ function handleNetworkError(error: unknown, url: string): HttpError {
   throw error;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-// process.env.NODE_ENV === "production"
-//   ? "/api/proxy"
-//   : process.env.NEXT_PUBLIC_API_URL ?? "";
+// HTTP 직접 연결 (프록시 없이)
+// EC2 배포 시 환경 변수 NEXT_PUBLIC_API_URL로 직접 연결
+// Amplify 배포 시 프로덕션에서는 "/api/proxy" 사용
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_API_URL
+    ? "/api/proxy"
+    : "");
 
 const serializeParams = (params?: RequestConfig["params"]) =>
   params
