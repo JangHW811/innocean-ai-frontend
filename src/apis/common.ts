@@ -120,10 +120,12 @@ function handleNetworkError(error: unknown, url: string): HttpError {
 
 // 프로덕션에서는 Next.js 프록시를 사용, 개발 환경에서는 직접 API 서버 사용
 // 프록시를 통해 HTTPS 프론트엔드에서 HTTP 백엔드로 안전하게 요청 가능
-const BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? "/api/proxy"
-    : process.env.NEXT_PUBLIC_API_URL ?? "";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+// const BASE_URL =
+
+//   process.env.NODE_ENV === "production"
+//     ? "/api/proxy"
+//     : process.env.NEXT_PUBLIC_API_URL ?? "";
 
 const serializeParams = (params?: RequestConfig["params"]) =>
   params
