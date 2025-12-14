@@ -29,6 +29,7 @@ export interface AnalysisJob {
   task_type: string;
   status: string;
   created_at: string;
+  first_step: boolean;
 }
 
 export const useUpsertSessionInfo = () => {

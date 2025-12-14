@@ -1,5 +1,6 @@
 import { ArtifactInfo, useJobInfo } from "@/apis/jobs";
-import { AnalysisJob } from "@/apis/sessions";
+import { AnalysisJob, useSessionInfo } from "@/apis/sessions";
+import { useSessionStore } from "@/stores/sessionStore";
 import { useEffect, useMemo, useRef } from "react";
 import DeepAnalysisModal from "../modals/DeepAnalysisModal";
 import { TabsContent } from "../ui/tabs";
@@ -8,6 +9,9 @@ interface TabSectionProps extends AnalysisJob {}
 
 const TabContents = ({ job_id }: TabSectionProps) => {
   const { data: jobInfo } = useJobInfo(job_id);
+  const { selectedSessionId } = useSessionStore();
+  const { data: sessionInfo } = useSessionInfo(selectedSessionId);
+  const job = sessionInfo?.jobs?.find((job) => job.job_id === job_id);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { isFailed, isRunning } = jobInfo || {};
 
@@ -98,11 +102,11 @@ const TabContents = ({ job_id }: TabSectionProps) => {
                     ))}
                   </div>
                 </div>
-                {
+                {!!job?.first_step && (
                   <div className="shrink-0">
                     <DeepAnalysisModal />
                   </div>
-                }
+                )}
               </div>
             </div>
           </div>
