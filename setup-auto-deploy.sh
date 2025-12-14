@@ -52,7 +52,22 @@ echo ""
 
 # Crontab에 추가
 echo "📅 Crontab에 자동 배포 작업 추가 중..."
-(crontab -l 2>/dev/null | grep -v "auto-deploy.sh"; echo "*/5 * * * * $HOME/auto-deploy.sh >> $HOME/auto-deploy.log 2>&1") | crontab -
+
+# 기존 crontab 백업
+crontab -l > /tmp/crontab_backup 2>/dev/null || true
+
+# 기존 auto-deploy.sh 항목 제거하고 새로 추가
+(crontab -l 2>/dev/null | grep -v "auto-deploy.sh" || true; echo "*/5 * * * * $HOME/auto-deploy.sh >> $HOME/auto-deploy.log 2>&1") | crontab -
+
+# 확인
+if crontab -l | grep -q "auto-deploy.sh"; then
+    echo "✅ Crontab에 자동 배포 작업이 추가되었습니다."
+else
+    echo "❌ Crontab 추가 실패. 수동으로 추가해주세요:"
+    echo "   crontab -e"
+    echo "   그리고 다음 줄 추가:"
+    echo "   */5 * * * * $HOME/auto-deploy.sh >> $HOME/auto-deploy.log 2>&1"
+fi
 
 echo "✅ 자동 배포 설정 완료!"
 echo ""
