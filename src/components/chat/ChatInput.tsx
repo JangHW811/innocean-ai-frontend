@@ -62,6 +62,8 @@ const ChatInput = () => {
       textareaRef.current.value = "";
       textareaRef.current.style.height = "auto";
     }
+
+    console.log("message", message);
     setMessage("");
   }, [
     message,
@@ -87,13 +89,13 @@ const ChatInput = () => {
           className="w-full resize-none border-none bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none overflow-hidden"
           style={{ minHeight: "22px", maxHeight: "120px" }}
           onKeyDown={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
             if (
               event.key === "Enter" &&
               !event.shiftKey &&
               !event.nativeEvent.isComposing
             ) {
+              event.preventDefault();
+              event.stopPropagation();
               handleSendMessage();
             }
           }}
