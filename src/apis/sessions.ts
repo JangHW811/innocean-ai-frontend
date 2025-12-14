@@ -56,6 +56,11 @@ export const useSessionInfo = (sessionId: string | null) => {
   return useQuery<SessionInfo>({
     queryKey: ["/api/sessions/:session_id", { session_id: sessionId }],
     enabled: !!sessionId,
+    queryFn: async () => {
+      const result = await http.get<SessionInfo>(`/api/sessions/${sessionId}`);
+      const jobs = [...(result?.jobs ?? [])].reverse();
+      return { ...result, jobs };
+    },
   });
 };
 

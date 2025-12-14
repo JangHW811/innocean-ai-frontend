@@ -39,13 +39,11 @@ const ChatHistory = ({
     return null;
   }
 
-  console.log("ChatHistory", messages);
   return (
     <div className="w-full max-w-3xl flex-1 px-4 py-6">
       <div className="space-y-4">
         {messages.map((message, index) => {
           const isUser = message.role === "user";
-          const isAssistant = message.role === "assistant";
 
           return (
             <div

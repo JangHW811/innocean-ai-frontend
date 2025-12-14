@@ -66,3 +66,21 @@ export const useJobInfo = (jobId?: string | null) => {
 
   return queryResult;
 };
+
+interface JobCsvFilesResponse {
+  job_id: string;
+  csv_files: JobCsvFile[];
+}
+
+export interface JobCsvFile {
+  artifact_id: string;
+  file_id: string;
+  filename: string;
+  url: string;
+}
+
+export const useJobCsvFiles = (jobId: string) => {
+  return useQuery<JobCsvFilesResponse>({
+    queryKey: ["/api/analysis-jobs/:job_id/csv-files", { job_id: jobId }],
+  });
+};

@@ -2,6 +2,7 @@ import { useJobInfo } from "@/apis/jobs";
 import { useAnalysisJobsStart, useSessionInfo } from "@/apis/sessions";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 
 const ChatInput = () => {
@@ -43,10 +44,9 @@ const ChatInput = () => {
   };
 
   const handleSendMessage = useCallback(() => {
-    // 즉시 textarea와 state 모두 초기화
-    if (textareaRef.current) {
-      textareaRef.current.value = "";
-      textareaRef.current.style.height = "auto";
+    if (isRunning) {
+      toast.error("분석중입니다. 잠시 후 다시 시도해주세요.");
+      return;
     }
     sendMessage({
       session_id: selectedSessionId!,
@@ -58,9 +58,19 @@ const ChatInput = () => {
         first_step: false,
       },
     });
-    console.log("sendMessage", message);
+    if (textareaRef.current) {
+      textareaRef.current.value = "";
+      textareaRef.current.style.height = "auto";
+    }
     setMessage("");
-  }, [message]);
+  }, [
+    message,
+    isRunning,
+    selectedSessionId,
+    selectedJobId,
+    sessionInfo,
+    sendMessage,
+  ]);
   return (
     <div className="w-full max-w-3xl rounded-t-3xl rounded-b-none border border-slate-200 bg-white/90 shadow-lg backdrop-blur px-6 py-5 sticky bottom-0 mx-[-12px] ">
       <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-400">

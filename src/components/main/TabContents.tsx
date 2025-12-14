@@ -1,6 +1,7 @@
 import { useJobInfo } from "@/apis/jobs";
 import { AnalysisJob } from "@/apis/sessions";
 import { useEffect, useMemo, useRef } from "react";
+import DeepAnalysisModal from "../modals/DeepAnalysisModal";
 import { TabsContent } from "../ui/tabs";
 import ArtifactContents from "./ArtifactContents";
 interface TabSectionProps extends AnalysisJob {}
@@ -54,20 +55,27 @@ const TabContents = ({ job_id }: TabSectionProps) => {
                   </svg>
                 </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
-                  분석에 사용된 데이터
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {jobInfo.filenames.map((filename, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center rounded-md bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50 transition-colors"
-                    >
-                      {filename}
-                    </span>
-                  ))}
+              <div className="flex-1 min-w-0 flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                    분석에 사용된 데이터
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {jobInfo.filenames.map((filename, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center rounded-md bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50 transition-colors"
+                      >
+                        {filename}
+                      </span>
+                    ))}
+                  </div>
                 </div>
+                {
+                  <div className="shrink-0">
+                    <DeepAnalysisModal />
+                  </div>
+                }
               </div>
             </div>
           </div>

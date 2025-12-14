@@ -26,16 +26,13 @@ const CreateSessionModal = () => {
   const { mutateAsync: upsertSessionInfo } = useUpsertSessionInfo();
   const { register, handleSubmit, reset } = methods;
   const onSubmit = async (data: any) => {
-    console.log("onsubmit", data);
     const values = Object.values(data);
     const isEmpty = values.every((value) => !value);
-    console.log("isEmpty", isEmpty);
     if (isEmpty) {
       confirm({
         title: "컨텍스트 입력 안내",
         description: "컨텍스트 없이 분석을 진행 하시겠습니까?",
         onConfirm: async () => {
-          console.log("onConfirm");
           await upsertSessionInfo(undefined);
           setOpen(false);
         },

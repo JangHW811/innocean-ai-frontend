@@ -27,7 +27,6 @@ const SessionItem = ({ session }: { session: SessionInfo }) => {
   const handleSelectSession = () => {
     setSelectedSessionId(session_id || null);
 
-    console.log("session.jobs", session, session.jobs?.[0]?.job_id);
     setSelectedJobId(session.jobs?.[0]?.job_id || null);
   };
   return (
