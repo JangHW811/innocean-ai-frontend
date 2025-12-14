@@ -38,7 +38,9 @@ const MarkdownReport = ({
     // URL이 상대 경로인 경우
     if (url.startsWith("/") || !url.includes("://")) {
       const filename = url.split("/").pop() || url;
-      const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/workspace/${selectedSessionId}/${filename}`;
+      const downloadUrl = `${
+        process.env.NEXT_PUBLIC_API_URL || ""
+      }/api/workspace/${selectedSessionId}/${filename}`;
 
       // 새 창에서 다운로드
       window.open(downloadUrl, "_blank");
