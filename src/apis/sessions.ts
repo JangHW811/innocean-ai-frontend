@@ -59,16 +59,17 @@ export const useSessionInfo = (sessionId: string | null) => {
   });
 };
 
-interface AnalysisJobsStartParams {
-  session_id: string;
-  file_ids: string[];
+interface AnalysisJobsStartRequest {
+  session_id?: string;
+  file_ids?: string[];
   params: {
-    task_type: string;
+    task_type?: string;
     user_request?: string;
     preproc_requirements?: string;
     first_step: boolean;
-    options: Record<string, any>;
+    options?: Record<string, any>;
   };
+  job_id?: string;
 }
 
 export interface AnalysisJobsStartResponse {
@@ -78,28 +79,33 @@ export interface AnalysisJobsStartResponse {
 
 export const useAnalysisJobsStart = () => {
   const queryClient = useQueryClient();
-  return useMutation<AnalysisJobsStartResponse, Error, AnalysisJobsStartParams>(
-    {
-      mutationFn: ({
+  return useMutation<
+    AnalysisJobsStartResponse,
+    Error,
+    AnalysisJobsStartRequest
+  >({
+    mutationFn: ({
+      session_id,
+      file_ids,
+      params,
+    }: AnalysisJobsStartRequest) => {
+      return http.post(`/api/analysis-jobs`, {
         session_id,
         file_ids,
         params,
-      }: AnalysisJobsStartParams) => {
-        return http.post(`/api/analysis-jobs`, {
-          session_id,
-          file_ids,
-          params,
-        });
-      },
-      onSuccess: (data, variables) => {
-        queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
-        queryClient.invalidateQueries({
-          queryKey: [
-            "/api/sessions/:session_id",
-            { session_id: variables.session_id },
-          ],
-        });
-      },
-    }
-  );
+      });
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
+      queryClient.invalidateQueries({
+        queryKey: [
+          "/api/sessions/:session_id",
+          { session_id: variables.session_id },
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/analysis-jobs/:job_id"],
+      });
+    },
+  });
 };

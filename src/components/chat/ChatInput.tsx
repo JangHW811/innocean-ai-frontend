@@ -1,11 +1,15 @@
 import { useJobInfo } from "@/apis/jobs";
+import { useAnalysisJobsStart, useSessionInfo } from "@/apis/sessions";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 
 const ChatInput = () => {
   const { selectedJobId } = useSessionStore();
+  const { selectedSessionId } = useSessionStore();
   const { data: jobInfo } = useJobInfo(selectedJobId);
+  const { data: sessionInfo } = useSessionInfo(selectedSessionId);
+  const { mutateAsync: sendMessage } = useAnalysisJobsStart();
   const { isRunning } = jobInfo || {};
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -40,6 +44,15 @@ const ChatInput = () => {
 
   const handleSendMessage = () => {
     setMessage("");
+    sendMessage({
+      session_id: selectedSessionId!,
+      file_ids: sessionInfo?.files?.map((file) => file.file_id) ?? [],
+      params: {
+        user_request: message,
+        options: {},
+        first_step: false,
+      },
+    });
 
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
