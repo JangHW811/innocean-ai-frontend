@@ -37,7 +37,28 @@ fi
 echo "✅ Yarn 버전: $(yarn -v)"
 
 # 환경 변수 파일 확인
-if [ ! -f .env.production ]; then
+echo "🔍 현재 디렉토리: $(pwd)"
+echo "🔍 .env.production 파일 존재 여부 확인 중..."
+
+if [ -f .env.production ]; then
+    echo "✅ .env.production 파일이 이미 존재합니다."
+    echo "📄 파일 내용:"
+    cat .env.production
+    echo ""
+elif [ -f .env ]; then
+    echo "⚠️  .env 파일은 존재하지만 .env.production 파일이 없습니다."
+    echo "📄 .env 파일 내용:"
+    cat .env
+    echo ""
+    echo "🔧 .env.production 파일을 생성합니다..."
+    cat > .env.production << EOF
+# 백엔드 API 서버 주소 (직접 연결)
+NEXT_PUBLIC_API_URL=http://3.38.141.170:8000
+NODE_ENV=production
+PORT=3000
+EOF
+    echo "✅ .env.production 파일을 생성했습니다."
+else
     echo "⚠️  .env.production 파일이 없습니다. 생성합니다..."
     cat > .env.production << EOF
 # 백엔드 API 서버 주소 (직접 연결)
