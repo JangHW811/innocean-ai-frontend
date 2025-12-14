@@ -4,7 +4,7 @@ const API_BASE_URL = process.env.API_URL || "http://3.38.141.170:8000";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   const resolvedParams = await params;
   return handleRequest(request, resolvedParams, "GET");
@@ -12,7 +12,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   const resolvedParams = await params;
   return handleRequest(request, resolvedParams, "POST");
@@ -20,7 +20,7 @@ export async function POST(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   const resolvedParams = await params;
   return handleRequest(request, resolvedParams, "PUT");
@@ -28,7 +28,7 @@ export async function PUT(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   const resolvedParams = await params;
   return handleRequest(request, resolvedParams, "PATCH");
@@ -36,7 +36,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   const resolvedParams = await params;
   return handleRequest(request, resolvedParams, "DELETE");
@@ -45,16 +45,18 @@ export async function DELETE(
 async function handleRequest(
   request: NextRequest,
   params: { path: string[] },
-  method: string,
+  method: string
 ) {
   try {
     const path = params.path.join("/");
     const searchParams = request.nextUrl.searchParams.toString();
-    const url = `${API_BASE_URL}/${path}${searchParams ? `?${searchParams}` : ""}`;
+    const url = `${API_BASE_URL}/${path}${
+      searchParams ? `?${searchParams}` : ""
+    }`;
 
     // 요청 헤더 복사 (필요한 것만)
     const headers: HeadersInit = {};
-    const forwardedHeaders = ["content-type", "x-user-email", "authorization"];
+    const forwardedHeaders = ["x-user-email", "authorization"];
 
     request.headers.forEach((value, key) => {
       if (forwardedHeaders.includes(key.toLowerCase())) {
@@ -65,11 +67,18 @@ async function handleRequest(
     // 요청 본문 가져오기
     let body: BodyInit | undefined;
     const contentType = request.headers.get("content-type");
+    const isMultipart = contentType?.includes("multipart/form-data");
 
     if (method !== "GET" && method !== "DELETE") {
-      if (contentType?.includes("multipart/form-data")) {
+      if (isMultipart) {
+        // FormData는 Content-Type 헤더를 자동으로 설정하므로 헤더에 추가하지 않음
+        // fetch가 boundary를 포함한 올바른 Content-Type을 자동으로 설정합니다
         body = await request.formData();
       } else {
+        // JSON이나 다른 타입의 경우 Content-Type 헤더 추가
+        if (contentType) {
+          headers["content-type"] = contentType;
+        }
         body = await request.text();
       }
     }
@@ -114,7 +123,7 @@ async function handleRequest(
         error: "Proxy request failed",
         message: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

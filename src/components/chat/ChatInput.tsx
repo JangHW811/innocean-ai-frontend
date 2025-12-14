@@ -46,6 +46,7 @@ const ChatInput = () => {
     setMessage("");
     sendMessage({
       session_id: selectedSessionId!,
+      job_id: selectedJobId!,
       file_ids: sessionInfo?.files?.map((file) => file.file_id) ?? [],
       params: {
         user_request: message,
@@ -58,7 +59,7 @@ const ChatInput = () => {
       textareaRef.current.style.height = "auto";
     }
   };
-
+  console.log("selectedJobId", selectedJobId);
   return (
     <div className="w-full max-w-3xl rounded-3xl border border-slate-200 bg-white/90 shadow-lg backdrop-blur px-6 py-5">
       <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-400">
@@ -105,7 +106,7 @@ const AnalyzingButton = () => {
     <button
       type="button"
       disabled
-      className="relative rounded-full flex items-center justify-center h-9 w-26 text-xs font-semibold text-white bg-linear-to-r from-indigo-800 via-purple-800 to-indigo-800 bg-size-[200%_100%] shadow-lg shadow-indigo-500/50 animate-pulse-glow"
+      className="relative rounded-full flex items-center justify-center h-9 w-26 text-xs font-semibold text-white bg-linear-to-r from-indigo-800 via-purple-800 to-indigo-800 bg-size-[200%_100%] shadow-lg shadow-indigo-500/50 animate-pulse-glow cursor-not-allowed"
       style={{
         animation:
           "gradient 3s ease infinite, pulse-glow 2s ease-in-out infinite",
