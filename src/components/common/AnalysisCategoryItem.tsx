@@ -1,6 +1,6 @@
 import { ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
-import { useMethods } from "@/apis/method";
+import { useState } from "react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface AnalysisCategoryItemProps {
@@ -112,13 +112,13 @@ const AnalysisItem = ({
   const isDark = theme === "dark";
   const isSelected = selectedAnalysisId === analysis.id;
 
-  const { data: jobTypeCategories } = useMethods();
-
-  const isSelectedBrandCompetitiveAnalysis = useMemo(() => {
-    const brandCompetitiveAnalysisItems =
-      jobTypeCategories?.["brand_competitive_analysis"]?.items;
-    return !!brandCompetitiveAnalysisItems?.[analysis.id!];
-  }, [jobTypeCategories, analysis.id]);
+  const developmentComplateList = [
+    "mock_analysis",
+    "mock_analysis_all",
+    "category_usage_moment",
+    "brand_preference_factors",
+    "brand_image",
+  ];
 
   const containerClassName = cn(
     "cursor-pointer flex items-start gap-2 rounded-lg px-3 py-3 transition-colors",
@@ -132,6 +132,10 @@ const AnalysisItem = ({
   );
 
   const handleSelectAnalysis = () => {
+    if (!developmentComplateList.includes(analysis.id)) {
+      toast.error("해당 분석은 개발 중입니다.");
+      return;
+    }
     onSelectAnalysis(analysis.id);
   };
   return (
