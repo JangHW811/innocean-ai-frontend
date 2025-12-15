@@ -1,5 +1,9 @@
 "use client";
 
+import { NotebookPen } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useMethods } from "@/apis/method";
 import { useAnalysisJobsStart } from "@/apis/sessions";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,19 +18,24 @@ import {
 import { Label } from "@/components/ui/label";
 import { useAlertActions } from "@/stores/alertStore";
 import { useSessionStore } from "@/stores/sessionStore";
-import { NotebookPen } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Input } from "../ui/input";
 
 interface PreProcRequirementModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+interface FormValues {
+  brand_name?: string;
+  competitive_brand_name?: string;
+  preproc_requirements?: string;
+}
+
 const PreProcRequirementModal = ({
   open,
   onOpenChange,
 }: PreProcRequirementModalProps) => {
-  const [preprocRequirements, setPreprocRequirements] = useState("");
+  const [isComposing, setIsComposing] = useState(false);
   const { confirm } = useAlertActions();
   const {
     selectedSessionId,
@@ -37,15 +46,34 @@ const PreProcRequirementModal = ({
     setSelectedJobId,
   } = useSessionStore();
   const { mutateAsync: startAnalysisJob, isPending } = useAnalysisJobsStart();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<FormValues>();
 
   useEffect(() => {
     if (!open) {
-      setPreprocRequirements("");
+      reset();
     }
-  }, [open]);
+  }, [open, reset]);
 
-  const handleAnalysisStart = async () => {
-    const alertMessage = preprocRequirements
+  const { data: jobTypeCategories } = useMethods();
+
+  const isSelectedBrandCompetitiveAnalysis = useMemo(() => {
+    const brandCompetitiveAnalysisItems =
+      jobTypeCategories?.["brand_competitive_analysis"]?.items;
+    return !!brandCompetitiveAnalysisItems?.[selectedJobType!];
+  }, [selectedJobType, jobTypeCategories]);
+
+  const handleAnalysisStart = async ({
+    brand_name,
+    competitive_brand_name,
+    preproc_requirements,
+  }: FormValues) => {
+    const alertMessage = preproc_requirements
       ? `분석을 시작하시겠습니까?`
       : `전처리 요구사항 없이 분석을 시작하시겠습니까?`;
     confirm({
@@ -57,10 +85,13 @@ const PreProcRequirementModal = ({
           file_ids: selectedFileIdList ?? [],
           params: {
             task_type: selectedJobType!,
-            preproc_requirements: preprocRequirements,
+            preproc_requirements: preproc_requirements,
             first_step: true,
             user_request: "",
-            options: {},
+            options: {
+              brand_name: brand_name,
+              competitive_brand_name: competitive_brand_name,
+            },
           },
         });
         setSelectedJobType(null);
@@ -71,64 +102,178 @@ const PreProcRequirementModal = ({
     });
   };
 
+  console.log("errors", errors);
+
+  const renderBrandInputAres = () => {
+    return (
+      <>
+        <div className="grid gap-2.5">
+          <div className="flex items-center gap-2">
+            <NotebookPen className="w-4 h-4 text-indigo-400" />
+            <Label
+              htmlFor="preprocRequirements"
+              className="text-sm font-semibold text-slate-200"
+            >
+              분석대상 브랜드
+            </Label>
+          </div>
+          <Input
+            isNagative
+            {...register("brand_name", {
+              onChange(event) {
+                // 조합 중이 아닐 때만 필터링
+                if (!isComposing) {
+                  const value = event.target.value;
+                  // 한글, 영문, 숫자, 공백만 허용하고 특수문자 제거
+                  const filteredValue = value.replace(
+                    /[^가-힣a-zA-Z0-9\s]/g,
+                    "",
+                  );
+                  if (value !== filteredValue) {
+                    setValue("brand_name", filteredValue, {
+                      shouldValidate: true,
+                    });
+                    event.target.value = filteredValue;
+                  }
+                }
+              },
+              required: "분석대상 브랜드를 입력해주세요",
+            })}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={(event) => {
+              setIsComposing(false);
+              // 한글 입력 조합 완료 후 필터링
+              const value = event.currentTarget.value;
+              const filteredValue = value.replace(/[^가-힣a-zA-Z0-9\s]/g, "");
+              if (value !== filteredValue) {
+                setValue("brand_name", filteredValue, {
+                  shouldValidate: true,
+                });
+                event.currentTarget.value = filteredValue;
+              }
+            }}
+            placeholder="분석대상 브랜드를 입력해주세요(특수문자 제외)"
+          />
+          {errors.brand_name && (
+            <p className="text-xs text-red-500">{errors.brand_name.message}</p>
+          )}
+        </div>
+        <div className="grid gap-2.5">
+          <div className="flex items-center gap-2">
+            <NotebookPen className="w-4 h-4 text-indigo-400" />
+            <Label
+              htmlFor="preprocRequirements"
+              className="text-sm font-semibold text-slate-200"
+            >
+              경쟁사 브랜드
+            </Label>
+          </div>
+          <Input
+            isNagative
+            {...register("competitive_brand_name", {
+              onChange(event) {
+                // 조합 중이 아닐 때만 필터링
+                if (!isComposing) {
+                  const value = event.target.value;
+                  // 한글, 영문, 숫자, 공백, 콤마만 허용하고 특수문자 제거
+                  const filteredValue = value.replace(
+                    /[^가-힣a-zA-Z0-9\s,]/g,
+                    "",
+                  );
+                  if (value !== filteredValue) {
+                    setValue("competitive_brand_name", filteredValue, {
+                      shouldValidate: true,
+                    });
+                    event.target.value = filteredValue;
+                  }
+                }
+              },
+              required: "경쟁사 브랜드를 입력해주세요",
+            })}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={(event) => {
+              setIsComposing(false);
+              // 한글 입력 조합 완료 후 필터링
+              const value = event.currentTarget.value;
+              const filteredValue = value.replace(/[^가-힣a-zA-Z0-9\s,]/g, "");
+              if (value !== filteredValue) {
+                setValue("competitive_brand_name", filteredValue, {
+                  shouldValidate: true,
+                });
+                event.currentTarget.value = filteredValue;
+              }
+            }}
+            placeholder="경쟁사 브랜드를 입력해주세요(특수문자 제외)"
+          />
+          {errors.competitive_brand_name && (
+            <p className="text-xs text-red-500">
+              {errors.competitive_brand_name.message}
+            </p>
+          )}
+        </div>
+      </>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] bg-slate-900 border-slate-700">
-        <DialogHeader className="space-y-3">
-          <DialogTitle className="text-xl font-bold text-white">
-            전처리 요구사항 입력
-          </DialogTitle>
-          <DialogDescription className="text-slate-400 text-sm">
-            분석을 시작하기 전에 필요한 전처리 요구사항을 입력해주세요.
-          </DialogDescription>
-        </DialogHeader>
+        <form onSubmit={handleSubmit(handleAnalysisStart)}>
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-xl font-bold text-white">
+              전처리 요구사항 입력{errors?.brand_name?.message}
+            </DialogTitle>
+            <DialogDescription className="text-slate-400 text-sm">
+              분석을 시작하기 전에 필요한 전처리 요구사항을 입력해주세요.
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="grid gap-6 py-4">
-          <div className="grid gap-2.5">
-            <div className="flex items-center gap-2">
-              <NotebookPen className="w-4 h-4 text-indigo-400" />
-              <Label
-                htmlFor="preprocRequirements"
-                className="text-sm font-semibold text-slate-200"
-              >
-                전처리 요구사항
-              </Label>
+          <div className="grid gap-6 py-4">
+            <div className="grid gap-2.5">
+              <div className="flex items-center gap-2">
+                <NotebookPen className="w-4 h-4 text-indigo-400" />
+                <Label
+                  htmlFor="preprocRequirements"
+                  className="text-sm font-semibold text-slate-200"
+                >
+                  전처리 요구사항
+                </Label>
+              </div>
+              <textarea
+                id="preprocRequirements"
+                rows={5}
+                {...register("preproc_requirements")}
+                placeholder="예: 결측치 처리 방법, 이상치 제거 기준, 데이터 정규화 방법 등을 명시해주세요."
+                className="w-full resize-none rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+              <p className="text-xs text-slate-500">
+                분석 데이터의 전처리 방식을 구체적으로 설명해주세요. 입력하지
+                않아도 진행 가능합니다.
+              </p>
             </div>
-            <textarea
-              id="preprocRequirements"
-              rows={5}
-              value={preprocRequirements}
-              onChange={(event) => setPreprocRequirements(event.target.value)}
-              placeholder="예: 결측치 처리 방법, 이상치 제거 기준, 데이터 정규화 방법 등을 명시해주세요."
-              className="w-full resize-none rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            />
-            <p className="text-xs text-slate-500">
-              분석 데이터의 전처리 방식을 구체적으로 설명해주세요. 입력하지
-              않아도 진행 가능합니다.
-            </p>
+            {isSelectedBrandCompetitiveAnalysis && renderBrandInputAres()}
           </div>
-        </div>
 
-        <DialogFooter className="gap-2 sm:gap-2">
-          <DialogClose asChild>
+          <DialogFooter className="gap-2 sm:gap-2">
+            <DialogClose asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className="border-slate-600 hover:text-slate-600"
+                disabled={isPending}
+              >
+                취소
+              </Button>
+            </DialogClose>
             <Button
-              type="button"
-              variant="outline"
-              className="border-slate-600 hover:text-slate-600"
-              disabled={isPending}
+              type="submit"
+              loading={isPending}
+              className="text-white font-semibold"
             >
-              취소
+              분석 시작
             </Button>
-          </DialogClose>
-          <Button
-            type="button"
-            onClick={handleAnalysisStart}
-            loading={isPending}
-            className="text-white font-semibold"
-          >
-            분석 시작
-          </Button>
-        </DialogFooter>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
