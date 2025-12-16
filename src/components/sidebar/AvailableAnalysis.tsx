@@ -1,7 +1,7 @@
-import { useSessionStore } from "@/stores/sessionStore";
 import { useState } from "react";
+import { useSessionStore } from "@/stores/sessionStore";
 import AnalysisTree from "../common/AnalysisTree";
-import PreProcRequirementModal from "../modals/PreProcRequirementModal";
+import PreProcRequirementModal from "../modals/preProcRequirementModal";
 
 const AvailableAnalysis = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

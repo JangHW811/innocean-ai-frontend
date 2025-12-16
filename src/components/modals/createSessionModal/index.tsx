@@ -1,5 +1,8 @@
 "use client";
 
+import { FileText, Target } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useUpsertSessionInfo } from "@/apis/sessions";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,9 +18,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAlertActions } from "@/stores/alertStore";
-import { FileText, Target } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 
 const CreateSessionModal = () => {
   const [open, setOpen] = useState(false);

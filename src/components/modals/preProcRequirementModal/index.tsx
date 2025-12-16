@@ -2,7 +2,7 @@
 
 import { NotebookPen } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useMethods } from "@/apis/method";
 import { useAnalysisJobsStart } from "@/apis/sessions";
 import { Button } from "@/components/ui/button";
@@ -15,10 +15,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import TagInput from "@/components/ui/tag-input";
 import { useAlertActions } from "@/stores/alertStore";
 import { useSessionStore } from "@/stores/sessionStore";
-import { Input } from "../ui/input";
 
 interface PreProcRequirementModalProps {
   open: boolean;
@@ -51,6 +52,8 @@ const PreProcRequirementModal = ({
     handleSubmit,
     reset,
     setValue,
+    control,
+    watch,
     formState: { errors },
   } = useForm<FormValues>();
 
@@ -102,7 +105,7 @@ const PreProcRequirementModal = ({
     });
   };
 
-  console.log("errors", errors);
+  console.log("errors", errors, watch("competitive_brand_name"));
 
   const renderBrandInputAres = () => {
     return (
@@ -168,42 +171,23 @@ const PreProcRequirementModal = ({
               경쟁사 브랜드
             </Label>
           </div>
-          <Input
-            isNagative
-            {...register("competitive_brand_name", {
-              onChange(event) {
-                // 조합 중이 아닐 때만 필터링
-                if (!isComposing) {
-                  const value = event.target.value;
-                  // 한글, 영문, 숫자, 공백, 콤마만 허용하고 특수문자 제거
-                  const filteredValue = value.replace(
-                    /[^가-힣a-zA-Z0-9\s,]/g,
-                    "",
-                  );
-                  if (value !== filteredValue) {
-                    setValue("competitive_brand_name", filteredValue, {
-                      shouldValidate: true,
-                    });
-                    event.target.value = filteredValue;
-                  }
-                }
-              },
+          <Controller
+            control={control}
+            name="competitive_brand_name"
+            rules={{
               required: "경쟁사 브랜드를 입력해주세요",
-            })}
-            onCompositionStart={() => setIsComposing(true)}
-            onCompositionEnd={(event) => {
-              setIsComposing(false);
-              // 한글 입력 조합 완료 후 필터링
-              const value = event.currentTarget.value;
-              const filteredValue = value.replace(/[^가-힣a-zA-Z0-9\s,]/g, "");
-              if (value !== filteredValue) {
-                setValue("competitive_brand_name", filteredValue, {
-                  shouldValidate: true,
-                });
-                event.currentTarget.value = filteredValue;
-              }
             }}
-            placeholder="경쟁사 브랜드를 입력해주세요(특수문자 제외)"
+            render={({ field }) => (
+              <TagInput
+                placeholder="경쟁사 브랜드를 입력해주세요(특수문자 제외)"
+                isNagative
+                {...field}
+                onChange={(tags) => {
+                  field.onChange(tags.join(","));
+                }}
+                value={field.value?.split(",") ?? []}
+              />
+            )}
           />
           {errors.competitive_brand_name && (
             <p className="text-xs text-red-500">
@@ -244,7 +228,7 @@ const PreProcRequirementModal = ({
                 rows={5}
                 {...register("preproc_requirements")}
                 placeholder="예: 결측치 처리 방법, 이상치 제거 기준, 데이터 정규화 방법 등을 명시해주세요."
-                className="w-full resize-none rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full resize-none rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500/20"
               />
               <p className="text-xs text-slate-500">
                 분석 데이터의 전처리 방식을 구체적으로 설명해주세요. 입력하지

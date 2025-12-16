@@ -1,7 +1,12 @@
 "use client";
 
+import { List, Pencil, Target } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { useJobCsvFiles, useJobInfo } from "@/apis/jobs";
 import { useAnalysisJobsStart } from "@/apis/sessions";
+import AnalysisTree from "@/components/common/AnalysisTree";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -13,14 +18,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSessionStore } from "@/stores/sessionStore";
-import { List, Pencil, Target } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
-import AnalysisTree from "../common/AnalysisTree";
-import { Input } from "../ui/input";
 
 interface FormValues {
   task_type: string;
@@ -58,7 +58,8 @@ const DeepAnalysisModal = () => {
     return data?.csv_files ?? [];
   }, [data]);
 
-  useEffect(() => reset, [open, reset]);
+  useEffect(() => reset, [reset]);
+
   const onSubmit = async (data: FormValues) => {
     const { job_id } = await startAnalysisJob({
       session_id: selectedSessionId!,
@@ -113,6 +114,7 @@ const DeepAnalysisModal = () => {
                       return (
                         <label
                           key={csvFile.file_id}
+                          htmlFor={`file-${csvFile.file_id}`}
                           className="flex items-center gap-3 text-slate-200 text-sm bg-slate-800/50 p-3 rounded-lg border border-slate-700 hover:bg-slate-800/70 hover:border-slate-600 transition-all cursor-pointer"
                         >
                           <Checkbox
@@ -123,7 +125,7 @@ const DeepAnalysisModal = () => {
                                 field.value.push(csvFile.file_id);
                               } else {
                                 field.value = field.value.filter(
-                                  (id) => id !== csvFile.file_id
+                                  (id) => id !== csvFile.file_id,
                                 );
                               }
                               field.onChange(field.value);

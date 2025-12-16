@@ -1,6 +1,6 @@
-import { useSessionInfoList } from "@/apis/sessions";
 import { MessageSquare } from "lucide-react";
-import CreateSessionModal from "../modals/CreateSessionModal";
+import { useSessionInfoList } from "@/apis/sessions";
+import CreateSessionModal from "../modals/createSessionModal";
 import SessionList from "./SessionList";
 
 export default function NewSessionCard() {
