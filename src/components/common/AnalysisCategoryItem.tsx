@@ -118,6 +118,9 @@ const AnalysisItem = ({
     "category_usage_moment",
     "brand_preference_factors",
     "brand_image",
+    "category_needs_triggers",
+    "category_unmet_barriers",
+    "category_kbf"
   ];
 
   const containerClassName = cn(
