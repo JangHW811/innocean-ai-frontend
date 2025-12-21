@@ -66,14 +66,20 @@ export const useSessionInfo = (sessionId: string | null) => {
 };
 
 interface AnalysisJobsStartRequest {
-  session_id?: string;
+  session_id: string;
+  file_id?: string;
   file_ids?: string[];
   params: {
+    first_step?: boolean;
+    options?: Record<string, any>;
     task_type?: string;
     user_request?: string;
     preproc_requirements?: string;
-    first_step: boolean;
-    options?: Record<string, any>;
+    analysis_target?: string;
+    preprocessing_requirements?: string;
+    insight_count?: number;
+    target_brand?: string[];
+    competitor_brand?: string[];
   };
   job_id?: string;
 }

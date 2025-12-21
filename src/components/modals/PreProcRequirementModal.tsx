@@ -15,9 +15,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { useAlertActions } from "@/stores/alertStore";
 import { useSessionStore } from "@/stores/sessionStore";
-import { NotebookPen } from "lucide-react";
+import { NotebookPen, Plus, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { Input } from "../ui/input";
 
 interface PreProcRequirementModalProps {
@@ -27,7 +27,7 @@ interface PreProcRequirementModalProps {
 
 interface FormValues {
   brand_name?: string;
-  competitive_brand_name?: string;
+  competitive_brands: string[];
   preproc_requirements?: string;
 }
 
@@ -51,12 +51,26 @@ const PreProcRequirementModal = ({
     handleSubmit,
     reset,
     setValue,
+    control,
     formState: { errors },
-  } = useForm<FormValues>();
+  } = useForm<FormValues>({
+    defaultValues: {
+      competitive_brands: [""],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray<any>({
+    control,
+    name: "competitive_brands",
+  });
+
+  console.log("fields", fields);
 
   useEffect(() => {
     if (!open) {
-      reset();
+      reset({
+        competitive_brands: [""],
+      });
     }
   }, [open, reset]);
 
@@ -70,9 +84,18 @@ const PreProcRequirementModal = ({
 
   const handleAnalysisStart = async ({
     brand_name,
-    competitive_brand_name,
+    competitive_brands,
     preproc_requirements,
   }: FormValues) => {
+    console.log("competitive_brands", competitive_brands);
+    const fileField = {
+      file_id:
+        selectedFileIdList?.length === 1 ? selectedFileIdList[0] : undefined,
+      file_ids: selectedFileIdList?.length > 0 ? selectedFileIdList : [],
+    };
+    const filteredCompetitiveBrands = competitive_brands.filter(
+      (brand) => brand.trim() !== ""
+    );
     const alertMessage = preproc_requirements
       ? `분석을 시작하시겠습니까?`
       : `전처리 요구사항 없이 분석을 시작하시겠습니까?`;
@@ -82,16 +105,20 @@ const PreProcRequirementModal = ({
       onConfirm: async () => {
         const { job_id } = await startAnalysisJob({
           session_id: selectedSessionId!,
-          file_ids: selectedFileIdList ?? [],
+          ...fileField,
           params: {
             task_type: selectedJobType!,
             preproc_requirements: preproc_requirements,
             first_step: true,
             user_request: "",
-            options: {
-              brand_name: brand_name,
-              competitive_brand_name: competitive_brand_name,
-            },
+            target_brand: brand_name ? [brand_name] : [],
+            competitor_brand:
+              filteredCompetitiveBrands.length > 0
+                ? filteredCompetitiveBrands
+                : [],
+            analysis_target: "",
+            preprocessing_requirements: preproc_requirements,
+            insight_count: 0,
           },
         });
         setSelectedJobType(null);
@@ -159,56 +186,89 @@ const PreProcRequirementModal = ({
           )}
         </div>
         <div className="grid gap-2.5">
-          <div className="flex items-center gap-2">
-            <NotebookPen className="w-4 h-4 text-indigo-400" />
-            <Label
-              htmlFor="preprocRequirements"
-              className="text-sm font-semibold text-slate-200"
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <NotebookPen className="w-4 h-4 text-indigo-400" />
+              <Label
+                htmlFor="preprocRequirements"
+                className="text-sm font-semibold text-slate-200"
+              >
+                경쟁사 브랜드
+              </Label>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 bg-slate-800 border-slate-600 hover:bg-slate-700"
+              onClick={() => {
+                append("");
+              }}
             >
-              경쟁사 브랜드
-            </Label>
+              <Plus className="h-4 w-4 text-slate-200" />
+            </Button>
           </div>
-          <Input
-            isNagative
-            {...register("competitive_brand_name", {
-              onChange(event) {
-                // 조합 중이 아닐 때만 필터링
-                if (!isComposing) {
-                  const value = event.target.value;
-                  // 한글, 영문, 숫자, 공백, 콤마만 허용하고 특수문자 제거
-                  const filteredValue = value.replace(
-                    /[^가-힣a-zA-Z0-9\s,]/g,
-                    ""
-                  );
-                  if (value !== filteredValue) {
-                    setValue("competitive_brand_name", filteredValue, {
-                      shouldValidate: true,
-                    });
-                    event.target.value = filteredValue;
-                  }
-                }
-              },
-            })}
-            onCompositionStart={() => setIsComposing(true)}
-            onCompositionEnd={(event) => {
-              setIsComposing(false);
-              // 한글 입력 조합 완료 후 필터링
-              const value = event.currentTarget.value;
-              const filteredValue = value.replace(/[^가-힣a-zA-Z0-9\s,]/g, "");
-              if (value !== filteredValue) {
-                setValue("competitive_brand_name", filteredValue, {
-                  shouldValidate: true,
-                });
-                event.currentTarget.value = filteredValue;
-              }
-            }}
-            placeholder="경쟁사 브랜드를 입력해주세요(특수문자 제외)"
-          />
-          {errors.competitive_brand_name && (
-            <p className="text-xs text-red-500">
-              {errors.competitive_brand_name.message}
-            </p>
-          )}
+          <div className="space-y-2">
+            {fields.map((field: { id: string }, index: number) => (
+              <div key={field.id} className="flex items-center gap-2">
+                <Input
+                  isNagative
+                  {...register(`competitive_brands.${index}` as const)}
+                  onChange={(event) => {
+                    // 조합 중이 아닐 때만 필터링
+                    if (!isComposing) {
+                      const value = event.target.value;
+                      // 한글, 영문, 숫자, 공백만 허용하고 특수문자 제거
+                      const filteredValue = value.replace(
+                        /[^가-힣a-zA-Z0-9\s]/g,
+                        ""
+                      );
+                      if (value !== filteredValue) {
+                        setValue(
+                          `competitive_brands.${index}` as const,
+                          filteredValue,
+                          { shouldValidate: true }
+                        );
+                      }
+                    }
+                  }}
+                  onCompositionStart={() => setIsComposing(true)}
+                  onCompositionEnd={(event) => {
+                    setIsComposing(false);
+                    // 한글 입력 조합 완료 후 필터링
+                    const value = event.currentTarget.value;
+                    const filteredValue = value.replace(
+                      /[^가-힣a-zA-Z0-9\s]/g,
+                      ""
+                    );
+                    if (value !== filteredValue) {
+                      setValue(
+                        `competitive_brands.${index}` as const,
+                        filteredValue,
+                        { shouldValidate: true }
+                      );
+                    }
+                  }}
+                  placeholder="경쟁사 브랜드를 입력해주세요(특수문자 제외)"
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-slate-700"
+                  onClick={() => {
+                    if (fields.length > 1) {
+                      remove(index);
+                    }
+                  }}
+                  disabled={fields.length === 1}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
         </div>
       </>
     );
