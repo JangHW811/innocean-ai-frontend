@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useSessionStore } from "@/stores/sessionStore";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { http } from "./common";
 
 export interface JobInfoRequest {
@@ -65,6 +66,25 @@ export const useJobInfo = (jobId?: string | null) => {
   });
 
   return queryResult;
+};
+
+export const useDeleteJob = () => {
+  const queryClient = useQueryClient();
+  const { selectedSessionId } = useSessionStore();
+  return useMutation<void, Error, string>({
+    mutationFn: (jobId: string) => {
+      return http.delete(`/api/analysis-jobs/${jobId}`);
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
+      queryClient.invalidateQueries({
+        queryKey: [
+          "/api/sessions/:session_id",
+          { session_id: selectedSessionId },
+        ],
+      });
+    },
+  });
 };
 
 interface JobCsvFilesResponse {

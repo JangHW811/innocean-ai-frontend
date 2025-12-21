@@ -38,7 +38,6 @@ export const useUpsertSessionInfo = () => {
   return useMutation({
     mutationFn: (sessionInfo?: Pick<SessionInfo, "name" | "description">) => {
       const userId = useAuthStore.getState().id;
-
       return http.post("/api/sessions", { ...sessionInfo, user_id: userId });
     },
     onSuccess: () => {
@@ -104,6 +103,38 @@ export const useAnalysisJobsStart = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["/api/analysis-jobs/:job_id", { job_id: variables.job_id }],
+      });
+    },
+  });
+};
+
+export const useDeleteSession = () => {
+  const queryClient = useQueryClient();
+  return useMutation<void, Error, string>({
+    mutationFn: (sessionId: string) => {
+      return http.delete(`/api/sessions/${sessionId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
+    },
+  });
+};
+
+interface UpdateSessionParams {
+  name?: string;
+  description?: string;
+}
+
+export const useUpdateSession = (sessionId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation<void, Error, UpdateSessionParams>({
+    mutationFn: (params: UpdateSessionParams) => {
+      return http.patch(`/api/sessions/${sessionId}`, params);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/sessions/:session_id", { session_id: sessionId }],
       });
     },
   });

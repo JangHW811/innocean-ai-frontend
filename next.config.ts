@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "http",
-        hostname: "3.38.141.170",
+        hostname: "13.125.120.86",
         port: "8000",
         pathname: "/api/artifacts/**",
       },

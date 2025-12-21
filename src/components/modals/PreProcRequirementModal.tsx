@@ -1,8 +1,5 @@
 "use client";
 
-import { NotebookPen } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
 import { useMethods } from "@/apis/method";
 import { useAnalysisJobsStart } from "@/apis/sessions";
 import { Button } from "@/components/ui/button";
@@ -18,6 +15,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { useAlertActions } from "@/stores/alertStore";
 import { useSessionStore } from "@/stores/sessionStore";
+import { NotebookPen } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Input } from "../ui/input";
 
 interface PreProcRequirementModalProps {
@@ -127,7 +127,7 @@ const PreProcRequirementModal = ({
                   // 한글, 영문, 숫자, 공백만 허용하고 특수문자 제거
                   const filteredValue = value.replace(
                     /[^가-힣a-zA-Z0-9\s]/g,
-                    "",
+                    ""
                   );
                   if (value !== filteredValue) {
                     setValue("brand_name", filteredValue, {
@@ -178,7 +178,7 @@ const PreProcRequirementModal = ({
                   // 한글, 영문, 숫자, 공백, 콤마만 허용하고 특수문자 제거
                   const filteredValue = value.replace(
                     /[^가-힣a-zA-Z0-9\s,]/g,
-                    "",
+                    ""
                   );
                   if (value !== filteredValue) {
                     setValue("competitive_brand_name", filteredValue, {
@@ -188,7 +188,6 @@ const PreProcRequirementModal = ({
                   }
                 }
               },
-              required: "경쟁사 브랜드를 입력해주세요",
             })}
             onCompositionStart={() => setIsComposing(true)}
             onCompositionEnd={(event) => {

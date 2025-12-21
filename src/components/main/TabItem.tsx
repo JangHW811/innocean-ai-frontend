@@ -1,7 +1,8 @@
-import { useJobInfo } from "@/apis/jobs";
+import { useDeleteJob, useJobInfo } from "@/apis/jobs";
 import { useMethods } from "@/apis/method";
 import { AnalysisJob } from "@/apis/sessions";
-import { BarChart3 } from "lucide-react";
+import { useAlertActions } from "@/stores/alertStore";
+import { BarChart3, X } from "lucide-react";
 import { useMemo } from "react";
 import { TabsTrigger } from "../ui/tabs";
 
@@ -9,6 +10,8 @@ interface TabItemProps extends AnalysisJob {}
 
 const TabItem = ({ job_id, task_type }: TabItemProps) => {
   const { data: jobInfo } = useJobInfo(job_id);
+  const { confirm } = useAlertActions();
+  const { mutate: deleteJob } = useDeleteJob();
 
   const contentsCount = useMemo(() => {
     return jobInfo?.steps?.flatMap((step) => step.artifacts).length ?? 0;
@@ -25,6 +28,16 @@ const TabItem = ({ job_id, task_type }: TabItemProps) => {
     (item) => item.key === task_type
   )?.value;
 
+  const handleDeleteJob = () => {
+    confirm({
+      title: "정말 삭제하시겠습니까?",
+      description: "삭제하면 복구할 수 없습니다.",
+      onConfirm: () => {
+        deleteJob(job_id);
+      },
+    });
+  };
+
   return (
     <TabsTrigger value={job_id}>
       <BarChart3 className="size-4 text-blue-600" />
@@ -34,6 +47,9 @@ const TabItem = ({ job_id, task_type }: TabItemProps) => {
           {contentsCount}
         </span>
       </span>
+      <a className="cursor-pointer" onClick={handleDeleteJob}>
+        <X className="size-4" />
+      </a>
     </TabsTrigger>
   );
 };
