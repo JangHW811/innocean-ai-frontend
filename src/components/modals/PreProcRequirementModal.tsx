@@ -29,6 +29,7 @@ interface FormValues {
   brand_name?: string;
   competitive_brands: string[];
   preproc_requirements?: string;
+  insight_count: number;
 }
 
 const PreProcRequirementModal = ({
@@ -82,10 +83,15 @@ const PreProcRequirementModal = ({
     return !!brandCompetitiveAnalysisItems?.[selectedJobType!];
   }, [selectedJobType, jobTypeCategories]);
 
+  const isSelectedNeedsAnTrigger = useMemo(() => {
+    return selectedJobType === "brand_needs_triggers";
+  }, [selectedJobType]);
+
   const handleAnalysisStart = async ({
     brand_name,
     competitive_brands,
     preproc_requirements,
+    insight_count,
   }: FormValues) => {
     console.log("competitive_brands", competitive_brands);
     const fileField = {
@@ -118,7 +124,7 @@ const PreProcRequirementModal = ({
                 : [],
             analysis_target: "",
             preprocessing_requirements: preproc_requirements,
-            insight_count: 0,
+            insight_count,
           },
         });
         setSelectedJobType(null);
@@ -134,6 +140,50 @@ const PreProcRequirementModal = ({
   const renderBrandInputAres = () => {
     return (
       <>
+        {isSelectedNeedsAnTrigger && (
+          <div className="grid gap-2.5">
+            <div className="flex items-center gap-2">
+              <NotebookPen className="w-4 h-4 text-indigo-400" />
+              <Label
+                htmlFor="preprocRequirements"
+                className="text-sm font-semibold text-slate-200"
+              >
+                인사이트 갯수
+              </Label>
+            </div>
+            <Input
+              isNagative
+              type="number"
+              {...register("insight_count", {
+                valueAsNumber: true,
+                onChange(event) {
+                  // 조합 중이 아닐 때만 필터링
+                  if (!isComposing) {
+                    const value = event.target.value;
+                    // 한글, 영문, 숫자, 공백만 허용하고 특수문자 제거
+                    const filteredValue = value.replace(
+                      /[^가-힣a-zA-Z0-9\s]/g,
+                      ""
+                    );
+                    if (value !== filteredValue) {
+                      setValue("brand_name", filteredValue, {
+                        shouldValidate: true,
+                      });
+                      event.target.value = filteredValue;
+                    }
+                  }
+                },
+                required: "인사이트 갯수를 입력해주세요",
+              })}
+              placeholder="인사이트 갯수를 입력해주세요"
+            />
+            {errors.insight_count && (
+              <p className="text-xs text-red-500">
+                {errors.insight_count.message}
+              </p>
+            )}
+          </div>
+        )}
         <div className="grid gap-2.5">
           <div className="flex items-center gap-2">
             <NotebookPen className="w-4 h-4 text-indigo-400" />
