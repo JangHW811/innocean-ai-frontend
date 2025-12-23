@@ -1,10 +1,11 @@
-import { ArtifactInfo, useJobInfo } from "@/apis/jobs";
-import { AnalysisJob, useSessionInfo } from "@/apis/sessions";
-import { useSessionStore } from "@/stores/sessionStore";
 import { useEffect, useMemo, useRef } from "react";
+import { type ArtifactInfo, useJobInfo } from "@/apis/jobs";
+import { type AnalysisJob, useSessionInfo } from "@/apis/sessions";
+import { useSessionStore } from "@/stores/sessionStore";
 import DeepAnalysisModal from "../modals/DeepAnalysisModal";
 import { TabsContent } from "../ui/tabs";
 import ArtifactContents from "./ArtifactContents";
+
 interface TabSectionProps extends AnalysisJob {}
 
 const TabContents = ({ job_id }: TabSectionProps) => {
@@ -19,7 +20,7 @@ const TabContents = ({ job_id }: TabSectionProps) => {
     const artifacts =
       jobInfo?.steps?.flatMap((step) => {
         const userMessage = step.messages.find(
-          (message) => message.role === "user"
+          (message) => message.role === "user",
         );
 
         return [
@@ -77,7 +78,9 @@ const TabContents = ({ job_id }: TabSectionProps) => {
                     viewBox="0 0 20 20"
                     fill="currentColor"
                     className="h-4 w-4 text-indigo-600"
+                    aria-label="문서 아이콘"
                   >
+                    <title>문서 아이콘</title>
                     <path
                       fillRule="evenodd"
                       d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5z"
@@ -92,9 +95,9 @@ const TabContents = ({ job_id }: TabSectionProps) => {
                     분석에 사용된 데이터
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {jobInfo.filenames.map((filename, index) => (
+                    {jobInfo.filenames.map((filename) => (
                       <span
-                        key={index}
+                        key={filename}
                         className="inline-flex items-center rounded-md bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50 transition-colors"
                       >
                         {filename}
@@ -136,7 +139,7 @@ const TabContents = ({ job_id }: TabSectionProps) => {
         {isRunning ? (
           <TabContentsSkeleton />
         ) : (
-          <>{isFailed && <div className="text-red-500">분석 실패</div>}</>
+          isFailed && <div className="text-red-500">분석 실패</div>
         )}
       </div>
     </TabsContent>

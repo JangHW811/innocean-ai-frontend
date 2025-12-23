@@ -172,15 +172,10 @@ const PreProcRequirementModal = ({
               isNagative
               type="number"
               max={20}
-              min={1}
               id="insightCount"
               {...register("insight_count", {
                 valueAsNumber: true,
                 required: "인사이트 갯수를 입력해주세요",
-                min: {
-                  value: 1,
-                  message: "인사이트 갯수는 1 이상이어야 합니다.",
-                },
                 max: {
                   value: 20,
                   message: "인사이트 갯수는 20 이하여야 합니다.",

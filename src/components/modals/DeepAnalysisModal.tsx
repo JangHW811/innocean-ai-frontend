@@ -1,5 +1,9 @@
 "use client";
 
+import { List, Pencil, Target } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { useJobCsvFiles, useJobInfo } from "@/apis/jobs";
 import { useAnalysisJobsStart } from "@/apis/sessions";
 import { Button } from "@/components/ui/button";
@@ -15,10 +19,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useSessionStore } from "@/stores/sessionStore";
-import { List, Pencil, Target } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import AnalysisTree from "../common/AnalysisTree";
 import { Input } from "../ui/input";
 
@@ -50,17 +50,27 @@ const DeepAnalysisModal = () => {
     useSessionStore();
   const { data: jobInfo } = useJobInfo(selectedJobId);
 
-  const { isRunning } = jobInfo ?? {};
+  const { isRunning, isSuccess } = jobInfo ?? {};
 
-  const { data } = useJobCsvFiles(selectedJobId!);
+  const { data, refetch } = useJobCsvFiles(selectedJobId!);
+
+  useEffect(() => {
+    if (isSuccess) {
+      refetch();
+    }
+  }, [isSuccess, refetch]);
 
   const csvFiles = useMemo(() => {
     return data?.csv_files ?? [];
-  }, [data]);
+  }, [data?.csv_files]);
 
-  useEffect(() => reset, [open, reset]);
+  useEffect(() => {
+    return () => {
+      reset();
+    };
+  }, [reset]);
   const onSubmit = async (data: FormValues) => {
-    const { job_id } = await startAnalysisJob({
+    const { job_id: newJobId } = await startAnalysisJob({
       session_id: selectedSessionId!,
       file_ids: Array.from(data.file_ids),
       params: {
@@ -69,9 +79,11 @@ const DeepAnalysisModal = () => {
         user_request: data.user_request,
         options: {},
       },
+      job_id:
+        jobInfo?.task_type === data.task_type ? selectedJobId! : undefined,
     });
     toast.success("심화분석이 시작되었습니다.");
-    setSelectedJobId(job_id);
+    setSelectedJobId(newJobId);
     setOpen(false);
   };
 
@@ -113,6 +125,7 @@ const DeepAnalysisModal = () => {
                       return (
                         <label
                           key={csvFile.file_id}
+                          htmlFor={`file-${csvFile.file_id}`}
                           className="flex items-center gap-3 text-slate-200 text-sm bg-slate-800/50 p-3 rounded-lg border border-slate-700 hover:bg-slate-800/70 hover:border-slate-600 transition-all cursor-pointer"
                         >
                           <Checkbox
@@ -123,7 +136,7 @@ const DeepAnalysisModal = () => {
                                 field.value.push(csvFile.file_id);
                               } else {
                                 field.value = field.value.filter(
-                                  (id) => id !== csvFile.file_id
+                                  (id) => id !== csvFile.file_id,
                                 );
                               }
                               field.onChange(field.value);

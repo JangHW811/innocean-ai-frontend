@@ -1,12 +1,12 @@
 "use client";
 
-import { useArtifact } from "@/apis/artifact";
-import { ArtifactInfo } from "@/apis/jobs";
 import Papa from "papaparse";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
+import { useArtifact } from "@/apis/artifact";
+import type { ArtifactInfo } from "@/apis/jobs";
 
-const TableCsv = ({ artifact_id, filename }: ArtifactInfo) => {
+const TableCsv = ({ artifact_id }: ArtifactInfo) => {
   const { data: artifact, isLoading } = useArtifact(artifact_id);
   const parsedData = useMemo(() => {
     if (!artifact) return { headers: [], rows: [] };
@@ -88,7 +88,7 @@ const TableCsv = ({ artifact_id, filename }: ArtifactInfo) => {
           className="text-blue-600 hover:text-blue-800 hover:underline whitespace-nowrap"
         >
           [링크]
-        </a>
+        </a>,
       );
 
       lastIndex = urlIndex + urlMatch.length;
@@ -130,7 +130,7 @@ const TableCsv = ({ artifact_id, filename }: ArtifactInfo) => {
             <tr className="bg-slate-50">
               {parsedData.headers.map((header, index) => (
                 <th
-                  key={index}
+                  key={header}
                   className="border-b border-slate-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600"
                 >
                   {header}
@@ -139,14 +139,14 @@ const TableCsv = ({ artifact_id, filename }: ArtifactInfo) => {
             </tr>
           </thead>
           <tbody>
-            {parsedData.rows.map((row, rowIndex) => (
+            {parsedData.rows.map((row) => (
               <tr
-                key={rowIndex}
+                key={`row-${JSON.stringify(row)}`}
                 className="transition-colors hover:bg-slate-50"
               >
-                {parsedData.headers.map((_, colIndex) => (
+                {parsedData.headers.map((col, colIndex) => (
                   <td
-                    key={colIndex}
+                    key={col}
                     className="border-b border-slate-100 px-4 py-3 text-sm text-slate-700 max-w-xs"
                   >
                     {renderCellContent(row[colIndex] || "")}
