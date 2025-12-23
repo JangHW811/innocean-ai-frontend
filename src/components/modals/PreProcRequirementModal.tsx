@@ -1,5 +1,8 @@
 "use client";
 
+import { NotebookPen, Plus, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useMethods } from "@/apis/method";
 import { useAnalysisJobsStart } from "@/apis/sessions";
 import { Button } from "@/components/ui/button";
@@ -15,15 +18,27 @@ import {
 import { Label } from "@/components/ui/label";
 import { useAlertActions } from "@/stores/alertStore";
 import { useSessionStore } from "@/stores/sessionStore";
-import { NotebookPen, Plus, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
 import { Input } from "../ui/input";
 
 interface PreProcRequirementModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+const INSIGHT_CATEGORY_LIST = [
+  "category_brand_trend",
+  "category_needs_triggers",
+  "category_unmet_barriers",
+  "category_kbf",
+  "category_usage_moment",
+  "lifestyle_analysis",
+  "brand_preference_factors",
+  "brand_needs_triggers",
+  "brand_unmet_barriers",
+  "brand_kbf",
+  "brand_usage_moment",
+  "brand_image",
+];
 
 interface FormValues {
   brand_name?: string;
@@ -83,8 +98,10 @@ const PreProcRequirementModal = ({
     return !!brandCompetitiveAnalysisItems?.[selectedJobType!];
   }, [selectedJobType, jobTypeCategories]);
 
-  const isSelectedNeedsAnTrigger = useMemo(() => {
-    return selectedJobType === "brand_needs_triggers";
+  const isSelectedInsightCategory = useMemo(() => {
+    return selectedJobType
+      ? INSIGHT_CATEGORY_LIST.includes(selectedJobType)
+      : false;
   }, [selectedJobType]);
 
   const handleAnalysisStart = async ({
@@ -100,7 +117,7 @@ const PreProcRequirementModal = ({
       file_ids: selectedFileIdList?.length > 0 ? selectedFileIdList : [],
     };
     const filteredCompetitiveBrands = competitive_brands.filter(
-      (brand) => brand.trim() !== ""
+      (brand) => brand.trim() !== "",
     );
     const alertMessage = preproc_requirements
       ? `분석을 시작하시겠습니까?`
@@ -140,12 +157,12 @@ const PreProcRequirementModal = ({
   const renderBrandInputAres = () => {
     return (
       <>
-        {isSelectedNeedsAnTrigger && (
+        {isSelectedInsightCategory && (
           <div className="grid gap-2.5">
             <div className="flex items-center gap-2">
               <NotebookPen className="w-4 h-4 text-indigo-400" />
               <Label
-                htmlFor="preprocRequirements"
+                htmlFor="insightCount"
                 className="text-sm font-semibold text-slate-200"
               >
                 인사이트 갯수
@@ -154,26 +171,14 @@ const PreProcRequirementModal = ({
             <Input
               isNagative
               type="number"
+              id="insightCount"
               {...register("insight_count", {
                 valueAsNumber: true,
-                onChange(event) {
-                  // 조합 중이 아닐 때만 필터링
-                  if (!isComposing) {
-                    const value = event.target.value;
-                    // 한글, 영문, 숫자, 공백만 허용하고 특수문자 제거
-                    const filteredValue = value.replace(
-                      /[^가-힣a-zA-Z0-9\s]/g,
-                      ""
-                    );
-                    if (value !== filteredValue) {
-                      setValue("brand_name", filteredValue, {
-                        shouldValidate: true,
-                      });
-                      event.target.value = filteredValue;
-                    }
-                  }
-                },
                 required: "인사이트 갯수를 입력해주세요",
+                min: {
+                  value: 1,
+                  message: "인사이트 갯수는 1 이상이어야 합니다.",
+                },
               })}
               placeholder="인사이트 갯수를 입력해주세요"
             />
@@ -204,7 +209,7 @@ const PreProcRequirementModal = ({
                   // 한글, 영문, 숫자, 공백만 허용하고 특수문자 제거
                   const filteredValue = value.replace(
                     /[^가-힣a-zA-Z0-9\s]/g,
-                    ""
+                    "",
                   );
                   if (value !== filteredValue) {
                     setValue("brand_name", filteredValue, {
@@ -271,13 +276,13 @@ const PreProcRequirementModal = ({
                       // 한글, 영문, 숫자, 공백만 허용하고 특수문자 제거
                       const filteredValue = value.replace(
                         /[^가-힣a-zA-Z0-9\s]/g,
-                        ""
+                        "",
                       );
                       if (value !== filteredValue) {
                         setValue(
                           `competitive_brands.${index}` as const,
                           filteredValue,
-                          { shouldValidate: true }
+                          { shouldValidate: true },
                         );
                       }
                     }
@@ -289,13 +294,13 @@ const PreProcRequirementModal = ({
                     const value = event.currentTarget.value;
                     const filteredValue = value.replace(
                       /[^가-힣a-zA-Z0-9\s]/g,
-                      ""
+                      "",
                     );
                     if (value !== filteredValue) {
                       setValue(
                         `competitive_brands.${index}` as const,
                         filteredValue,
-                        { shouldValidate: true }
+                        { shouldValidate: true },
                       );
                     }
                   }}
