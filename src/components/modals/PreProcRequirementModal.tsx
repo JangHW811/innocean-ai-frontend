@@ -171,6 +171,8 @@ const PreProcRequirementModal = ({
             <Input
               isNagative
               type="number"
+              max={20}
+              min={1}
               id="insightCount"
               {...register("insight_count", {
                 valueAsNumber: true,
@@ -178,6 +180,26 @@ const PreProcRequirementModal = ({
                 min: {
                   value: 1,
                   message: "인사이트 갯수는 1 이상이어야 합니다.",
+                },
+                max: {
+                  value: 20,
+                  message: "인사이트 갯수는 20 이하여야 합니다.",
+                },
+                onChange: (e) => {
+                  const value = e.target.value;
+                  if (value === "") {
+                    return;
+                  }
+                  const numValue = Number(value);
+                  if (!Number.isNaN(numValue)) {
+                    if (numValue > 20) {
+                      e.target.value = "20";
+                      setValue("insight_count", 20, { shouldValidate: true });
+                    } else if (numValue < 1) {
+                      e.target.value = "1";
+                      setValue("insight_count", 1, { shouldValidate: true });
+                    }
+                  }
                 },
               })}
               placeholder="인사이트 갯수를 입력해주세요"
