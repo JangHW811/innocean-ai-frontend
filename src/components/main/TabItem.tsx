@@ -1,9 +1,10 @@
-import { useDeleteJob, useJobInfo } from "@/apis/jobs";
-import { useMethods } from "@/apis/method";
-import { AnalysisJob } from "@/apis/sessions";
-import { useAlertActions } from "@/stores/alertStore";
 import { BarChart3, X } from "lucide-react";
 import { useMemo } from "react";
+import { useDeleteJob, useJobInfo } from "@/apis/jobs";
+import { useMethods } from "@/apis/method";
+import { type AnalysisJob, useSessionInfo } from "@/apis/sessions";
+import { useAlertActions } from "@/stores/alertStore";
+import { useSessionStore } from "@/stores/sessionStore";
 import { TabsTrigger } from "../ui/tabs";
 
 interface TabItemProps extends AnalysisJob {}
@@ -11,7 +12,10 @@ interface TabItemProps extends AnalysisJob {}
 const TabItem = ({ job_id, task_type }: TabItemProps) => {
   const { data: jobInfo } = useJobInfo(job_id);
   const { confirm } = useAlertActions();
-  const { mutate: deleteJob } = useDeleteJob();
+  const { selectedJobId, setSelectedJobId, selectedSessionId } =
+    useSessionStore();
+  const { data: sessionInfo } = useSessionInfo(selectedSessionId);
+  const { mutateAsync: deleteJob } = useDeleteJob();
 
   const contentsCount = useMemo(() => {
     return jobInfo?.steps?.flatMap((step) => step.artifacts).length ?? 0;
@@ -22,18 +26,26 @@ const TabItem = ({ job_id, task_type }: TabItemProps) => {
       return Object.entries(value.items).map(([key, value]) => {
         return { key, value: value.label };
       });
-    }
+    },
   );
   const categoryName = categoryFlatList.find(
-    (item) => item.key === task_type
+    (item) => item.key === task_type,
   )?.value;
 
   const handleDeleteJob = () => {
     confirm({
       title: "정말 삭제하시겠습니까?",
       description: "삭제하면 복구할 수 없습니다.",
-      onConfirm: () => {
-        deleteJob(job_id);
+      onConfirm: async () => {
+        await deleteJob(job_id);
+        if (selectedJobId === job_id) {
+          const nextJob = sessionInfo?.jobs?.find(
+            (job) => job.job_id !== job_id,
+          );
+          if (nextJob) {
+            setSelectedJobId(nextJob.job_id || null);
+          }
+        }
       },
     });
   };
@@ -47,9 +59,25 @@ const TabItem = ({ job_id, task_type }: TabItemProps) => {
           {contentsCount}
         </span>
       </span>
-      <a className="cursor-pointer" onClick={handleDeleteJob}>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDeleteJob();
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            e.stopPropagation();
+            handleDeleteJob();
+          }
+        }}
+        className="cursor-pointer"
+        aria-label="작업 삭제"
+      >
         <X className="size-4" />
-      </a>
+      </div>
     </TabsTrigger>
   );
 };
