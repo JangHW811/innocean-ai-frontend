@@ -1,7 +1,7 @@
 "use client";
 
 import * as TabsPrimitive from "@radix-ui/react-tabs";
-import * as React from "react";
+import type * as React from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -27,7 +27,7 @@ function TabsList({
       data-slot="tabs-list"
       className={cn(
         "inline-flex h-auto w-full items-center justify-start gap-0 border-b border-gray-200 bg-white",
-        className
+        className,
       )}
       {...props}
     />
@@ -42,8 +42,8 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "relative inline-flex h-auto items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-600 whitespace-nowrap transition-colors border-b-2 border-transparent hover:text-gray-900 focus-visible:outline-none focus-visible:ring-0 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
+        "relative inline-flex h-auto items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-600 whitespace-nowrap transition-colors border-b-2 border-transparent hover:text-gray-900 focus-visible:outline-none focus-visible:ring-0 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 cursor-pointer",
+        className,
       )}
       {...props}
     />
