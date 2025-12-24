@@ -140,6 +140,7 @@ const NaverCrawlingRegistModal = ({
                 showDragDrop={true}
                 variant="default"
                 placeholder="파일을 클릭하거나 드래그앤드롭으로 업로드하세요."
+                isNagative
               />
               <div className="flex justify-end mt-2">
                 <button

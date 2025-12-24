@@ -16,6 +16,7 @@ interface FileUploadZoneProps {
   className?: string;
   variant?: "default" | "compact";
   sampleDownloadLink?: React.ReactNode;
+  isNagative?: boolean;
 }
 
 const FileUploadZone = ({
@@ -30,6 +31,7 @@ const FileUploadZone = ({
   className = "",
   variant = "default",
   sampleDownloadLink,
+  isNagative = false,
 }: FileUploadZoneProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -124,16 +126,28 @@ const FileUploadZone = ({
       <div
         className={`mt-3 rounded-2xl border-2 border-dashed py-10 text-center text-xs transition ${
           isUploading
-            ? "border-primary bg-primary/10 text-primary"
-            : isDragging
+            ? isNagative
               ? "border-primary bg-primary/10 text-primary"
-              : "border-slate-600 bg-slate-800/50 text-slate-400"
+              : "border-indigo-400 bg-indigo-50/70 text-indigo-500"
+            : isDragging
+              ? isNagative
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-indigo-400 bg-indigo-50/70 text-indigo-500"
+              : isNagative
+                ? "border-slate-600 bg-slate-800/50 text-slate-400"
+                : "border-slate-300 bg-white text-slate-400"
         }`}
       >
         {isUploading ? (
           <div className="flex flex-col items-center gap-2">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            <span className="text-primary">파일 업로드 중...</span>
+            <Loader2
+              className={`h-5 w-5 animate-spin ${
+                isNagative ? "text-primary" : "text-indigo-500"
+              }`}
+            />
+            <span className={isNagative ? "text-primary" : "text-indigo-500"}>
+              파일 업로드 중...
+            </span>
           </div>
         ) : (
           placeholder || "파일을 클릭하거나 드래그앤드롭으로 업로드하세요."
