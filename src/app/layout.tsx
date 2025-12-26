@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/common/providers";
+import SettingsMenu from "@/components/main/SettingsMenu";
 
 export const metadata: Metadata = {
   title: "Innocean Data Analysis - Renewal",
@@ -27,6 +28,7 @@ export default function RootLayout({
         style={{ fontFamily: "'Pretendard', sans-serif" }}
       >
         <Providers>{children}</Providers>
+        <SettingsMenu />
       </body>
     </html>
   );

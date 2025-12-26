@@ -4,6 +4,7 @@ import { useState } from "react";
 import { type CrawlingListItem, useCrawlingDelete } from "@/apis/crawling";
 import { Button } from "@/components/ui/button";
 import { useAlertActions } from "@/stores/alertStore";
+import { useAuthStore } from "@/stores/authStore";
 import { fileDownload } from "@/utils/file.util";
 
 const SEGMENT_NUM_LABELS: Record<string, string> = {
@@ -32,6 +33,7 @@ interface RowWithDetailProps {
 }
 
 const CrawlingItem = ({ item, index }: RowWithDetailProps) => {
+  const { id } = useAuthStore();
   const { confirm } = useAlertActions();
   const [isOpen, setIsOpen] = useState(false);
   const { mutate: deleteCrawling } = useCrawlingDelete();
@@ -52,6 +54,7 @@ const CrawlingItem = ({ item, index }: RowWithDetailProps) => {
       },
     });
   };
+  console.log("AAAAA", id, item.user_id);
   return (
     <>
       <tr
@@ -73,7 +76,7 @@ const CrawlingItem = ({ item, index }: RowWithDetailProps) => {
           {USAGE_LABELS[String(item.usage)] || item.usage}
         </td>
         <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-700">
-          {item.manager}
+          {item.user_id}
         </td>
         <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
           {dayjs(item.created_at).format("YYYY-MM-DD HH:mm:ss")}
@@ -97,18 +100,20 @@ const CrawlingItem = ({ item, index }: RowWithDetailProps) => {
           )}
         </td>
         <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteCrawling();
-            }}
-            className="h-8 px-2 text-red-600 hover:text-red-700"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {id === item.user_id && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteCrawling();
+              }}
+              className="h-8 px-2 text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </td>
       </tr>
       {isOpen && (
