@@ -152,8 +152,6 @@ const PreProcRequirementModal = ({
     });
   };
 
-  console.log("errors", errors);
-
   const renderBrandInputAres = () => {
     return (
       <>

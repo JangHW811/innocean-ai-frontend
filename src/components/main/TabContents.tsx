@@ -48,11 +48,9 @@ const TabContents = ({ job_id }: TabSectionProps) => {
 
   console.log(contents);
 
-  // contents가 변경될 때마다 스크롤을 최하단으로 이동
   useEffect(() => {
     if (scrollContainerRef.current && contents.length > 0) {
       const container = scrollContainerRef.current;
-      // 약간의 지연을 두어 DOM 업데이트 후 스크롤
       setTimeout(() => {
         container.scrollTo({
           top: container.scrollHeight,

@@ -1,7 +1,7 @@
-import { useArtifact } from "@/apis/artifact";
-import { ArtifactInfo } from "@/apis/jobs";
 import { ChevronDown } from "lucide-react";
-import { useMemo } from "react";
+import { useArtifact } from "@/apis/artifact";
+import type { ArtifactInfo } from "@/apis/jobs";
+import { fileDownload } from "@/utils/file.util";
 import ChartImage from "./ChartImage";
 import MarkdownReport from "./MarkdownReport";
 import TableCsv from "./TableCsv";
@@ -17,11 +17,8 @@ const ArtifactContents = ({
   sequenceNumber,
   ...rest
 }: ArtifactContentsProps) => {
-  const { data: artifact, isLoading } = useArtifact(artifact_id);
+  const { isLoading } = useArtifact(artifact_id);
 
-  const linkUrl = useMemo(() => {
-    return `${process.env.NEXT_PUBLIC_API_URL || ""}${url}`;
-  }, [url]);
   if (isLoading) {
     return (
       <div className="rounded-lg border border-slate-200 bg-white shadow-sm p-8">
@@ -34,32 +31,14 @@ const ArtifactContents = ({
 
   const handleFileDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    try {
-      const response = await fetch(linkUrl);
-      if (!response.ok) {
-        throw new Error("파일 다운로드 실패");
-      }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("다운로드 오류:", error);
-      // 실패 시 새 탭에서 열기
-      window.open(linkUrl, "_blank");
-    }
+    fileDownload(url, filename);
   };
 
   return (
     <details className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden group">
       <summary className="border-b border-slate-200 bg-slate-50 px-4 py-3 cursor-pointer hover:bg-slate-100 transition-colors duration-200 flex items-center justify-between list-none">
         <a
-          href={linkUrl}
+          href={url}
           onClick={handleFileDownload}
           className="cursor-pointer flex items-center gap-2"
         >

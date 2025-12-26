@@ -1,11 +1,16 @@
 #!/bin/bash
 
-# EC2 배포 스크립트
-# 사용법: chmod +x deploy.sh && ./deploy.sh
+# 개발 서버 배포 스크립트
+# 사용법: chmod +x deploy-dev.sh && ./deploy-dev.sh
 
 set -e
 
-echo "🚀 Next.js 앱 배포를 시작합니다..."
+ENV_TYPE="development"
+APP_NAME="innocean-ai-frontend-dev"
+DEFAULT_PORT=3001
+ENV_FILE=".env.development"
+
+echo "🚀 [개발] Next.js 앱 배포를 시작합니다..."
 
 # 현재 디렉토리 확인
 if [ ! -f "package.json" ]; then
@@ -38,36 +43,36 @@ echo "✅ Yarn 버전: $(yarn -v)"
 
 # 환경 변수 파일 확인
 echo "🔍 현재 디렉토리: $(pwd)"
-echo "🔍 .env.production 파일 존재 여부 확인 중..."
+echo "🔍 ${ENV_FILE} 파일 존재 여부 확인 중..."
 
-if [ -f .env.production ]; then
-    echo "✅ .env.production 파일이 이미 존재합니다."
+if [ -f ${ENV_FILE} ]; then
+    echo "✅ ${ENV_FILE} 파일이 이미 존재합니다."
     echo "📄 파일 내용:"
-    cat .env.production
+    cat ${ENV_FILE}
     echo ""
 elif [ -f .env ]; then
-    echo "⚠️  .env 파일은 존재하지만 .env.production 파일이 없습니다."
+    echo "⚠️  .env 파일은 존재하지만 ${ENV_FILE} 파일이 없습니다."
     echo "📄 .env 파일 내용:"
     cat .env
     echo ""
-    echo "🔧 .env.production 파일을 생성합니다..."
-    cat > .env.production << EOF
-# 백엔드 API 서버 주소 (직접 연결)
+    echo "🔧 ${ENV_FILE} 파일을 생성합니다..."
+    cat > ${ENV_FILE} << EOF
+# 개발 서버 설정
 NEXT_PUBLIC_API_URL=http://3.38.141.170:8000
-NODE_ENV=production
-PORT=3000
+NODE_ENV=development
+PORT=${DEFAULT_PORT}
 EOF
-    echo "✅ .env.production 파일을 생성했습니다."
+    echo "✅ ${ENV_FILE} 파일을 생성했습니다."
 else
-    echo "⚠️  .env.production 파일이 없습니다. 생성합니다..."
-    cat > .env.production << EOF
-# 백엔드 API 서버 주소 (직접 연결)
+    echo "⚠️  ${ENV_FILE} 파일이 없습니다. 생성합니다..."
+    cat > ${ENV_FILE} << EOF
+# 개발 서버 설정
 NEXT_PUBLIC_API_URL=http://3.38.141.170:8000
-NODE_ENV=production
-PORT=3000
+NODE_ENV=development
+PORT=${DEFAULT_PORT}
 EOF
-    echo "✅ .env.production 파일을 생성했습니다."
-    echo "⚠️  필요시 .env.production 파일을 수정해주세요."
+    echo "✅ ${ENV_FILE} 파일을 생성했습니다."
+    echo "⚠️  필요시 ${ENV_FILE} 파일을 수정해주세요."
 fi
 
 # 의존성 설치
@@ -94,30 +99,32 @@ fi
 
 # PM2로 앱 시작/재시작
 echo "🚀 앱을 시작합니다..."
-# .env.production에서 환경변수 로드
-if [ -f .env.production ]; then
-    export $(grep -v '^#' .env.production | xargs)
+# .env 파일에서 환경변수 로드
+if [ -f ${ENV_FILE} ]; then
+    export $(grep -v '^#' ${ENV_FILE} | xargs)
 fi
 
-if pm2 list | grep -q "innocean-ai-frontend"; then
+if pm2 list | grep -q "${APP_NAME}"; then
     echo "🔄 기존 앱을 재시작합니다..."
-    pm2 delete innocean-ai-frontend 2>/dev/null || true
+    pm2 delete ${APP_NAME} 2>/dev/null || true
 fi
 
 echo "✨ 새로 앱을 시작합니다..."
-pm2 start npm --name "innocean-ai-frontend" -- start
+pm2 start npm --name "${APP_NAME}" -- start
 pm2 save
 pm2 startup 2>/dev/null || echo "⚠️  pm2 startup은 수동으로 실행해주세요: sudo pm2 startup"
 
 echo ""
-echo "✅ 배포가 완료되었습니다!"
+echo "✅ [개발] 배포가 완료되었습니다!"
 echo ""
 echo "📊 유용한 명령어:"
 echo "  - 상태 확인: pm2 status"
-echo "  - 로그 확인: pm2 logs innocean-ai-frontend"
-echo "  - 재시작: pm2 restart innocean-ai-frontend"
-echo "  - 중지: pm2 stop innocean-ai-frontend"
+echo "  - 로그 확인: pm2 logs ${APP_NAME}"
+echo "  - 재시작: pm2 restart ${APP_NAME}"
+echo "  - 중지: pm2 stop ${APP_NAME}"
 echo ""
-# .env.production에서 PORT 읽기
-PORT=$(grep "^PORT=" .env.production 2>/dev/null | cut -d'=' -f2 || echo "3000")
-echo "🌐 앱 접속: http://$(curl -s ifconfig.me || echo 'your-ec2-ip'):${PORT}"
+# .env 파일에서 PORT 읽기
+PORT=$(grep "^PORT=" ${ENV_FILE} 2>/dev/null | cut -d'=' -f2 || echo "${DEFAULT_PORT}")
+echo "🌐 [개발] 앱 접속: http://$(curl -s ifconfig.me || echo 'your-ec2-ip'):${PORT}"
+
+

@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FileSpreadsheet, X } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useCrawlingRegist } from "@/apis/crawling";
 import FileUploadZone from "@/components/common/FileUploadZone";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,23 +23,43 @@ interface NaverCrawlingRegistModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-interface FormValues {
-  title: string;
-  excelFile: File | null;
-  condition: string;
-  collectionUnit: string;
-  usage: string;
-  advertiser: string;
-  responsibleTeam: string;
-  responsiblePerson: string;
-  content: string;
-}
+const formSchema = z
+  .object({
+    title: z.string().min(1, "제목을 입력해주세요."),
+    file: z
+      .instanceof(File)
+      .refine(
+        (file: File) => {
+          const validExtensions = [".xlsx", ".xls"];
+          const fileExtension = file.name
+            .substring(file.name.lastIndexOf("."))
+            .toLowerCase();
+          return validExtensions.includes(fileExtension);
+        },
+        { message: "Excel 파일(.xlsx, .xls)만 업로드 가능합니다." },
+      )
+      .nullable(),
+    segment_num: z.string().min(1, "조건설정을 선택해주세요."),
+    time_unit: z.string().min(1, "수집단위를 선택해주세요."),
+    usage: z.string().min(1, "사용처를 선택해주세요."),
+    start_date: z.string().min(1, "시작일을 선택해주세요."),
+    advertiser: z.string().min(1, "광고주를 입력해주세요."),
+    team: z.string().optional(),
+    manager: z.string().optional(),
+    content: z.string().min(1, "내용을 입력해주세요."),
+  })
+  .refine((data) => data.file !== null, {
+    message: "엑셀 파일을 업로드해주세요.",
+    path: ["file"],
+  });
+
+export type CrawlingRegistFormValues = z.infer<typeof formSchema>;
 
 const NaverCrawlingRegistModal = ({
   open,
   onOpenChange,
 }: NaverCrawlingRegistModalProps) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { mutateAsync: registCrawling } = useCrawlingRegist();
   const {
     register,
     handleSubmit,
@@ -44,56 +67,48 @@ const NaverCrawlingRegistModal = ({
     setValue,
     watch,
     formState: { errors },
-  } = useForm<FormValues>({
+  } = useForm<CrawlingRegistFormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      condition: "전체(최근1년)",
-      collectionUnit: "Month",
-      usage: "경쟁PT",
+      segment_num: "0",
+      time_unit: "month",
+      usage: "0",
+      title: "",
+      file: null,
+      start_date: "",
+      advertiser: "",
+      team: "",
+      manager: "",
+      content: "",
     },
   });
 
-  // 파일 validation
-  register("excelFile", {
-    required: "엑셀 파일을 업로드해주세요.",
-    validate: (value) => {
-      if (!value) return "엑셀 파일을 업로드해주세요.";
-      return true;
-    },
-  });
-
-  const condition = watch("condition");
-  const collectionUnit = watch("collectionUnit");
+  const segment_num = watch("segment_num");
+  const time_unit = watch("time_unit");
   const usage = watch("usage");
 
   const handleFileSelect = (files: File[]) => {
     const file = files[0];
     if (file) {
-      // Excel 파일만 허용
-      const validExtensions = [".xlsx", ".xls"];
-      const fileExtension = file.name
-        .substring(file.name.lastIndexOf("."))
-        .toLowerCase();
-      if (!validExtensions.includes(fileExtension)) {
-        alert("Excel 파일(.xlsx, .xls)만 업로드 가능합니다.");
-        return;
-      }
-      setSelectedFile(file);
-      setValue("excelFile", file, { shouldValidate: true });
+      setValue("file", file, { shouldValidate: true });
     }
   };
 
-  const onSubmit = (data: FormValues) => {
+  const handleRemoveFile = () => {
+    setValue("file", null, { shouldValidate: true });
+  };
+
+  const onSubmit = (data: CrawlingRegistFormValues) => {
     console.log("Form data:", data);
+    registCrawling(data);
     // TODO: API 호출
     onOpenChange(false);
     reset();
-    setSelectedFile(null);
   };
 
   const handleClose = () => {
     onOpenChange(false);
     reset();
-    setSelectedFile(null);
   };
 
   return (
@@ -112,13 +127,14 @@ const NaverCrawlingRegistModal = ({
               <Label
                 htmlFor="title"
                 className="text-sm font-semibold text-slate-200"
+                required
               >
-                제목 <span className="text-red-500">*</span>
+                제목
               </Label>
               <Input
                 id="title"
                 isNagative
-                {...register("title", { required: "제목을 입력해주세요." })}
+                {...register("title")}
                 placeholder="제목을 입력하세요"
                 className="w-full"
               />
@@ -129,19 +145,35 @@ const NaverCrawlingRegistModal = ({
 
             {/* 엑셀업로드 */}
             <div className="grid gap-2">
-              <Label className="text-sm font-semibold text-slate-200">
-                엑셀업로드 <span className="text-red-500">*</span>
+              <Label className="text-sm font-semibold text-slate-200" required>
+                엑셀업로드
               </Label>
               <FileUploadZone
                 onFileSelect={handleFileSelect}
                 accept=".xlsx,.xls"
                 multiple={false}
-                selectedFile={selectedFile}
+                selectedFile={watch("file")}
                 showDragDrop={true}
                 variant="default"
                 placeholder="파일을 클릭하거나 드래그앤드롭으로 업로드하세요."
                 isNagative
               />
+              {watch("file") && (
+                <div className="mt-2 flex items-center gap-2 rounded-md border border-slate-700 bg-slate-800/50 px-3 py-2">
+                  <FileSpreadsheet className="h-4 w-4 shrink-0 text-green-500" />
+                  <span className="flex-1 truncate text-sm text-slate-200">
+                    {watch("file")?.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleRemoveFile}
+                    className="shrink-0 rounded p-1 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors"
+                    aria-label="파일 삭제"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
               <div className="flex justify-end mt-2">
                 <button
                   type="button"
@@ -154,103 +186,134 @@ const NaverCrawlingRegistModal = ({
                   [샘플 다운로드]
                 </button>
               </div>
-              {errors.excelFile && (
-                <p className="text-xs text-red-500">
-                  {errors.excelFile.message}
-                </p>
+              {errors.file && (
+                <p className="text-xs text-red-500">{errors.file.message}</p>
               )}
             </div>
 
             {/* 조건설정 */}
             <div className="grid gap-2">
-              <Label className="text-sm font-semibold text-slate-200">
-                조건설정 <span className="text-red-500">*</span>
+              <Label className="text-sm font-semibold text-slate-200" required>
+                조건설정
               </Label>
               <div className="flex flex-row gap-6">
                 {[
-                  "전체(최근1년)",
-                  "전체(기간설정)",
-                  "광고시스템 연령대 별",
-                  "5세 단위 연령대 별 (2016-01-01 이후부터 가능)",
+                  { label: "전체(최근 1년)", value: "0" },
+                  { label: "전체 (기간 설정)", value: "1" },
+                  { label: "광고시스템 연령대 별", value: "2" },
+                  { label: "5세 단위 연령대 별", value: "3" },
                 ].map((option) => (
                   <label
-                    key={option}
+                    key={option.value}
                     className="flex items-center gap-2 cursor-pointer"
                   >
                     <input
                       type="radio"
-                      value={option}
-                      checked={condition === option}
-                      onChange={(e) => setValue("condition", e.target.value)}
+                      value={String(option.value)}
+                      checked={segment_num === option.value}
+                      onChange={(e) => setValue("segment_num", e.target.value)}
                       className="w-4 h-4 text-primary border-slate-600 focus:ring-primary bg-slate-800"
                     />
-                    <span className="text-sm text-slate-200">{option}</span>
+                    <span className="text-xs text-slate-300 font-normal">
+                      {option.label}
+                    </span>
                   </label>
                 ))}
               </div>
-              {errors.condition && (
+              {errors.segment_num && (
                 <p className="text-xs text-red-500">
-                  {errors.condition.message}
+                  {errors.segment_num.message}
                 </p>
               )}
             </div>
 
-            {/* 수집단위 */}
-            <div className="grid gap-2">
-              <Label className="text-sm font-semibold text-slate-200">
-                수집단위 <span className="text-red-500">*</span>
-              </Label>
-              <div className="flex gap-6">
-                {["Month", "Date"].map((option) => (
-                  <label
-                    key={option}
-                    className="flex items-center gap-2 cursor-pointer"
-                  >
-                    <input
-                      type="radio"
-                      value={option}
-                      checked={collectionUnit === option}
-                      onChange={(e) =>
-                        setValue("collectionUnit", e.target.value)
-                      }
-                      className="w-4 h-4 text-primary border-slate-600 focus:ring-primary bg-slate-800"
-                    />
-                    <span className="text-sm text-slate-200">{option}</span>
-                  </label>
-                ))}
+            {/* 수집단위 & 시작일 */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label
+                  required
+                  className="text-sm font-semibold text-slate-200"
+                >
+                  수집단위
+                </Label>
+                <div className="flex gap-6">
+                  {[
+                    { label: "월별", value: "month" },
+                    { label: "일별", value: "date" },
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        value={option.value}
+                        checked={time_unit === option.value}
+                        onChange={(e) => setValue("time_unit", e.target.value)}
+                        className="w-4 h-4 text-primary border-slate-600 focus:ring-primary bg-slate-800"
+                      />
+                      <span className="text-sm text-slate-200">
+                        {option.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {errors.time_unit && (
+                  <p className="text-xs text-red-500">
+                    {errors.time_unit.message}
+                  </p>
+                )}
               </div>
-              {errors.collectionUnit && (
-                <p className="text-xs text-red-500">
-                  {errors.collectionUnit.message}
-                </p>
-              )}
+              <div className="grid gap-2">
+                <Label
+                  htmlFor="start_date"
+                  required
+                  className="text-sm font-semibold text-slate-200"
+                >
+                  시작일
+                </Label>
+                <Input
+                  id="start_date"
+                  type="date"
+                  isNagative
+                  {...register("start_date")}
+                  className="w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:contrast-100"
+                />
+                {errors.start_date && (
+                  <p className="text-xs text-red-500">
+                    {errors.start_date.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* 사용처 */}
             <div className="grid gap-2">
-              <Label className="text-sm font-semibold text-slate-200">
+              <Label className="text-sm font-semibold text-slate-200" required>
                 사용처
               </Label>
               <div className="flex flex-row gap-6">
                 {[
-                  "경쟁PT",
-                  "캠페인(계열)",
-                  "캠페인(비계열)",
-                  "홍보/교육/연구",
-                  "기타",
+                  { label: "경쟁PT", value: "0" },
+                  { label: "캠페인(계열)", value: "1" },
+                  { label: "캠페인(비계열)", value: "2" },
+                  { label: "홍보/교육/연구", value: "3" },
+                  { label: "기타", value: "4" },
                 ].map((option) => (
                   <label
-                    key={option}
+                    key={option.value}
                     className="flex items-center gap-2 cursor-pointer"
                   >
                     <input
                       type="radio"
-                      value={option}
-                      checked={usage === option}
+                      value={String(option.value)}
+                      checked={usage === option.value}
                       onChange={(e) => setValue("usage", e.target.value)}
                       className="w-4 h-4 text-primary border-slate-600 focus:ring-primary bg-slate-800"
                     />
-                    <span className="text-sm text-slate-200">{option}</span>
+                    <span className="text-xs text-slate-300 font-normal">
+                      {option.label}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -262,6 +325,7 @@ const NaverCrawlingRegistModal = ({
                 <div className="grid gap-2">
                   <Label
                     htmlFor="advertiser"
+                    required
                     className="text-sm font-semibold text-slate-200"
                   >
                     광고주
@@ -272,47 +336,52 @@ const NaverCrawlingRegistModal = ({
                     {...register("advertiser")}
                     placeholder="광고주를 입력하세요"
                   />
+                  {errors.advertiser && (
+                    <p className="text-xs text-red-500">
+                      {errors.advertiser.message}
+                    </p>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label
-                      htmlFor="responsibleTeam"
+                      htmlFor="team"
                       className="text-sm font-semibold text-slate-200"
                     >
                       담당팀
                     </Label>
                     <Input
-                      id="responsibleTeam"
+                      id="team"
                       isNagative
-                      {...register("responsibleTeam")}
+                      {...register("team")}
                       placeholder="담당팀을 입력하세요"
                     />
                   </div>
                   <div className="grid gap-2">
                     <Label
-                      htmlFor="responsiblePerson"
+                      htmlFor="manager"
                       className="text-sm font-semibold text-slate-200"
                     >
                       담당자
                     </Label>
                     <Input
-                      id="responsiblePerson"
+                      id="manager"
                       isNagative
-                      {...register("responsiblePerson")}
+                      {...register("manager")}
                       placeholder="담당자를 입력하세요"
                     />
                   </div>
                 </div>
               </div>
             </div>
-
             {/* 내용 */}
             <div className="grid gap-2">
               <Label
                 htmlFor="content"
+                required
                 className="text-sm font-semibold text-slate-200"
               >
-                내용 <span className="text-red-500">*</span>
+                내용
               </Label>
               <textarea
                 id="content"
