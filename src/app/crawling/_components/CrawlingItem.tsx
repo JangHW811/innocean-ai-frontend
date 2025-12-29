@@ -5,7 +5,6 @@ import { type CrawlingListItem, useCrawlingDelete } from "@/apis/crawling";
 import { Button } from "@/components/ui/button";
 import { useAlertActions } from "@/stores/alertStore";
 import { useAuthStore } from "@/stores/authStore";
-import { fileDownload } from "@/utils/file.util";
 
 const SEGMENT_NUM_LABELS: Record<string, string> = {
   "0": "전체(최근 1년)",
@@ -39,10 +38,10 @@ const CrawlingItem = ({ item, index }: RowWithDetailProps) => {
   const { mutate: deleteCrawling } = useCrawlingDelete();
 
   const handleDownloadCrawling = () => {
-    fileDownload(
-      `/api/search-jobs/${item.id}/download`,
-      `${item.advertiser}.xlsx`,
-    );
+    // fileDownload(
+    //   `/api/search-jobs/${item.id}/download`,
+    //   `${item.advertiser}.xlsx`,
+    // );
   };
 
   const handleDeleteCrawling = () => {
@@ -83,18 +82,13 @@ const CrawlingItem = ({ item, index }: RowWithDetailProps) => {
         </td>
         <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
           {item.output_file_path ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDownloadCrawling();
-              }}
-              className="h-8 px-2"
+            <a
+              target="_blank"
+              href={`${process.env.NEXT_PUBLIC_API_URL}/api/search-jobs/${item.id}/download`}
+              className="h-8 px-2 text-green-600 flex items-center justify-center w-8 hover:bg-green-50 rounded-md mx-auto"
             >
               <FileSpreadsheet className="h-4 w-4 text-green-600" />
-            </Button>
+            </a>
           ) : (
             <span className="text-primary font-medium">수집중</span>
           )}
@@ -109,7 +103,7 @@ const CrawlingItem = ({ item, index }: RowWithDetailProps) => {
                 e.stopPropagation();
                 handleDeleteCrawling();
               }}
-              className="h-8 px-2 text-red-600 hover:text-red-700"
+              className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 "
             >
               <Trash2 className="h-4 w-4" />
             </Button>
