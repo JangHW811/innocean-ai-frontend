@@ -3,6 +3,7 @@
 import { NotebookPen, Plus, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { useMethods } from "@/apis/method";
 import { useAnalysisJobsStart } from "@/apis/sessions";
 import { Button } from "@/components/ui/button";
 import {
@@ -89,6 +90,14 @@ const PreProcRequirementModal = ({
     }
   }, [open, reset]);
 
+  const { data: jobTypeCategories } = useMethods();
+
+  const isSelectedBrandCompetitiveAnalysis = useMemo(() => {
+    const brandCompetitiveAnalysisItems =
+      jobTypeCategories?.["brand_competitive_analysis"]?.items;
+    return !!brandCompetitiveAnalysisItems?.[selectedJobType!];
+  }, [selectedJobType, jobTypeCategories]);
+
   const isSelectedInsightCategory = useMemo(() => {
     return selectedJobType
       ? INSIGHT_CATEGORY_LIST.includes(selectedJobType)
@@ -142,64 +151,9 @@ const PreProcRequirementModal = ({
     });
   };
 
-  console.log(
-    "isSelectedInsightCategory",
-    isSelectedInsightCategory,
-    selectedJobType,
-  );
-
   const renderBrandInputAres = () => {
     return (
       <>
-        {isSelectedInsightCategory && (
-          <div className="grid gap-2.5">
-            <div className="flex items-center gap-2">
-              <NotebookPen className="w-4 h-4 text-indigo-400" />
-              <Label
-                htmlFor="insightCount"
-                className="text-sm font-semibold text-slate-200"
-              >
-                인사이트 갯수
-              </Label>
-            </div>
-            <Input
-              isNagative
-              type="number"
-              max={20}
-              id="insightCount"
-              {...register("insight_count", {
-                valueAsNumber: true,
-                required: "인사이트 갯수를 입력해주세요",
-                max: {
-                  value: 20,
-                  message: "인사이트 갯수는 20 이하여야 합니다.",
-                },
-                onChange: (e) => {
-                  const value = e.target.value;
-                  if (value === "") {
-                    return;
-                  }
-                  const numValue = Number(value);
-                  if (!Number.isNaN(numValue)) {
-                    if (numValue > 20) {
-                      e.target.value = "20";
-                      setValue("insight_count", 20, { shouldValidate: true });
-                    } else if (numValue < 1) {
-                      e.target.value = "1";
-                      setValue("insight_count", 1, { shouldValidate: true });
-                    }
-                  }
-                },
-              })}
-              placeholder="인사이트 갯수를 입력해주세요"
-            />
-            {errors.insight_count && (
-              <p className="text-xs text-red-500">
-                {errors.insight_count.message}
-              </p>
-            )}
-          </div>
-        )}
         <div className="grid gap-2.5">
           <div className="flex items-center gap-2">
             <NotebookPen className="w-4 h-4 text-indigo-400" />
@@ -340,6 +294,56 @@ const PreProcRequirementModal = ({
     );
   };
 
+  const renderInsightCountInputArea = () => {
+    return (
+      <div className="grid gap-2.5">
+        <div className="flex items-center gap-2">
+          <NotebookPen className="w-4 h-4 text-indigo-400" />
+          <Label
+            htmlFor="insightCount"
+            className="text-sm font-semibold text-slate-200"
+          >
+            인사이트 갯수
+          </Label>
+        </div>
+        <Input
+          isNagative
+          type="number"
+          max={20}
+          id="insightCount"
+          {...register("insight_count", {
+            valueAsNumber: true,
+            required: "인사이트 갯수를 입력해주세요",
+            max: {
+              value: 20,
+              message: "인사이트 갯수는 20 이하여야 합니다.",
+            },
+            onChange: (e) => {
+              const value = e.target.value;
+              if (value === "") {
+                return;
+              }
+              const numValue = Number(value);
+              if (!Number.isNaN(numValue)) {
+                if (numValue > 20) {
+                  e.target.value = "20";
+                  setValue("insight_count", 20, { shouldValidate: true });
+                } else if (numValue < 1) {
+                  e.target.value = "1";
+                  setValue("insight_count", 1, { shouldValidate: true });
+                }
+              }
+            },
+          })}
+          placeholder="인사이트 갯수를 입력해주세요"
+        />
+        {errors.insight_count && (
+          <p className="text-xs text-red-500">{errors.insight_count.message}</p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] bg-slate-900 border-slate-700">
@@ -376,7 +380,8 @@ const PreProcRequirementModal = ({
                 않아도 진행 가능합니다.
               </p>
             </div>
-            {renderBrandInputAres()}
+            {isSelectedInsightCategory && renderInsightCountInputArea()}
+            {isSelectedBrandCompetitiveAnalysis && renderBrandInputAres()}
           </div>
 
           <DialogFooter className="gap-2 sm:gap-2">
