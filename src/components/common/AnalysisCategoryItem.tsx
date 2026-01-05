@@ -126,6 +126,7 @@ const AnalysisItem = ({
     "brand_kbf",
     "brand_usage_moment",
     "category_brand_trend",
+    "category_brand_discourse",
   ];
 
   const containerClassName = cn(

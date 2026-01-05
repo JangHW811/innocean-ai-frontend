@@ -3,7 +3,6 @@
 import { NotebookPen, Plus, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useMethods } from "@/apis/method";
 import { useAnalysisJobsStart } from "@/apis/sessions";
 import { Button } from "@/components/ui/button";
 import {
@@ -90,14 +89,6 @@ const PreProcRequirementModal = ({
     }
   }, [open, reset]);
 
-  const { data: jobTypeCategories } = useMethods();
-
-  const isSelectedBrandCompetitiveAnalysis = useMemo(() => {
-    const brandCompetitiveAnalysisItems =
-      jobTypeCategories?.["brand_competitive_analysis"]?.items;
-    return !!brandCompetitiveAnalysisItems?.[selectedJobType!];
-  }, [selectedJobType, jobTypeCategories]);
-
   const isSelectedInsightCategory = useMemo(() => {
     return selectedJobType
       ? INSIGHT_CATEGORY_LIST.includes(selectedJobType)
@@ -110,7 +101,6 @@ const PreProcRequirementModal = ({
     preproc_requirements,
     insight_count,
   }: FormValues) => {
-    console.log("competitive_brands", competitive_brands);
     const fileField = {
       file_id:
         selectedFileIdList?.length === 1 ? selectedFileIdList[0] : undefined,
@@ -151,6 +141,12 @@ const PreProcRequirementModal = ({
       },
     });
   };
+
+  console.log(
+    "isSelectedInsightCategory",
+    isSelectedInsightCategory,
+    selectedJobType,
+  );
 
   const renderBrandInputAres = () => {
     return (
@@ -380,7 +376,7 @@ const PreProcRequirementModal = ({
                 않아도 진행 가능합니다.
               </p>
             </div>
-            {isSelectedBrandCompetitiveAnalysis && renderBrandInputAres()}
+            {renderBrandInputAres()}
           </div>
 
           <DialogFooter className="gap-2 sm:gap-2">
