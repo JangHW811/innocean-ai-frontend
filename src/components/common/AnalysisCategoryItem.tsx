@@ -1,7 +1,7 @@
-import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface AnalysisCategoryItemProps {
   categories: {
@@ -42,7 +42,7 @@ export default function AnalysisCategoryItem({
         }}
         className={cn(
           "sidebar-item flex items-center gap-3 px-3 py-3 rounded-lg transition-colors group w-full text-left",
-          isDark ? "bg-slate-800/50 hover:bg-slate-800/70" : "hover:bg-gray-50"
+          isDark ? "bg-slate-800/50 hover:bg-slate-800/70" : "hover:bg-gray-50",
         )}
         aria-expanded={isOpen}
       >
@@ -52,7 +52,7 @@ export default function AnalysisCategoryItem({
               "text-sm font-semibold",
               isDark
                 ? "text-slate-200 group-hover:text-white"
-                : "text-gray-700 group-hover:text-gray-900"
+                : "text-gray-700 group-hover:text-gray-900",
             )}
           >
             {title}
@@ -60,7 +60,7 @@ export default function AnalysisCategoryItem({
           <span
             className={cn(
               "text-[10px]",
-              isDark ? "text-slate-400" : "text-gray-400"
+              isDark ? "text-slate-400" : "text-gray-400",
             )}
           >
             {items?.length}개 분석 도구
@@ -72,7 +72,7 @@ export default function AnalysisCategoryItem({
             isOpen && "rotate-90",
             isDark
               ? "text-slate-400 group-hover:text-slate-300"
-              : "text-gray-300 group-hover:text-gray-500"
+              : "text-gray-300 group-hover:text-gray-500",
           )}
         />
       </button>
@@ -80,7 +80,7 @@ export default function AnalysisCategoryItem({
         <ul
           className={cn(
             "ml-4 mt-2 space-y-1 text-xs",
-            isDark ? "text-slate-400" : "text-gray-500"
+            isDark ? "text-slate-400" : "text-gray-500",
           )}
         >
           {items?.map((analysis) => (
@@ -122,6 +122,10 @@ const AnalysisItem = ({
     "brand_needs_triggers",
     "category_unmet_barriers",
     "category_kbf",
+    "brand_unmet_barriers",
+    "brand_kbf",
+    "brand_usage_moment",
+    "category_brand_trend",
   ];
 
   const containerClassName = cn(
@@ -131,13 +135,13 @@ const AnalysisItem = ({
         ? "bg-slate-800 hover:bg-slate-700 text-slate-100"
         : "hover:bg-slate-800/50 hover:text-slate-200 text-slate-300"
       : isSelected
-      ? "bg-gray-100 hover:bg-gray-200 text-gray-900"
-      : "hover:bg-gray-50 hover:text-gray-800 text-gray-700"
+        ? "bg-gray-100 hover:bg-gray-200 text-gray-900"
+        : "hover:bg-gray-50 hover:text-gray-800 text-gray-700",
   );
 
   const handleSelectAnalysis = () => {
     if (!developmentComplateList.includes(analysis.id)) {
-      toast.error("해당 분석은 개발 중입니다.");
+      toast.error("해당 분석은 개발 중 입니다.");
       return;
     }
     onSelectAnalysis(analysis.id);
