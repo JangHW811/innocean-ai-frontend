@@ -37,13 +37,6 @@ const CrawlingItem = ({ item, index }: RowWithDetailProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutate: deleteCrawling } = useCrawlingDelete();
 
-  const handleDownloadCrawling = () => {
-    // fileDownload(
-    //   `/api/search-jobs/${item.id}/download`,
-    //   `${item.advertiser}.xlsx`,
-    // );
-  };
-
   const handleDeleteCrawling = () => {
     confirm({
       title: "정말 삭제하시겠습니까?",
