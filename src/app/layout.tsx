@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/common/providers";
+import Header from "@/components/header/Header";
 import SettingsMenu from "@/components/main/SettingsMenu";
 
 export const metadata: Metadata = {
@@ -27,7 +28,12 @@ export default function RootLayout({
         className="antialiased"
         style={{ fontFamily: "'Pretendard', sans-serif" }}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <main className="bg-gray-50 text-gray-800 h-screen flex flex-col overflow-hidden">
+            <Header />
+            {children}
+          </main>
+        </Providers>
         <SettingsMenu />
       </body>
     </html>

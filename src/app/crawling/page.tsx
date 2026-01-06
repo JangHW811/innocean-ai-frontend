@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import type { CrawlingListParams } from "@/apis/crawling";
-import Header from "@/components/header/Header";
 import NaverCrawlingRegistModal from "@/components/modals/NaverCrawlingRegistModal";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
@@ -63,28 +62,25 @@ export default function CrawlingPage() {
     <>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <main className="bg-gray-50 text-gray-800 h-screen flex flex-col overflow-hidden">
-            <Header />
-            <div className="flex-1 overflow-y-auto p-6 pb-8">
-              <div className="max-w-7xl mx-auto">
-                <div className="mb-6">
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    네이버 크롤링 현황
-                  </h1>
-                </div>
-                <Search />
-                <CrawlingList
-                  params={searchParams}
-                  onPageChange={handlePageChange}
-                />
-                <div className="flex justify-end">
-                  <Button type="button" onClick={() => setIsModalOpen(true)}>
-                    등록
-                  </Button>
-                </div>
+          <div className="flex-1 overflow-y-auto p-6 pb-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                  네이버 크롤링 현황
+                </h1>
+              </div>
+              <Search />
+              <CrawlingList
+                params={searchParams}
+                onPageChange={handlePageChange}
+              />
+              <div className="flex justify-end">
+                <Button type="button" onClick={() => setIsModalOpen(true)}>
+                  등록
+                </Button>
               </div>
             </div>
-          </main>
+          </div>
         </form>
       </FormProvider>
       <NaverCrawlingRegistModal

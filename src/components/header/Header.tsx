@@ -11,19 +11,16 @@ const Header = () => {
   const isCrawlingPage = pathname === "/crawling";
   const { id } = useAuthStore();
 
-  const isAdmin = id?.startsWith("admin") ?? false;
-
+  const isLoggedIn = useAuthStore((state) => state.isAuthenticated);
   return (
     <header className="min-h-14 flex items-center justify-between px-6 border-b border-gray-100 bg-white shadow-sm gap-2">
       <div className="flex items-center gap-2">
-        <span className="text-2xl font-bold text-indigo-900 tracking-tight">
-          INNOCEAN
-        </span>
+        <Image src="/logo.png" alt="logo" width={100} height={100} />
         <h1 className="text-base font-semibold text-gray-800">
           Conversational Data Analysis
         </h1>
       </div>
-      {isAdmin && (
+      {isLoggedIn && (
         <Button
           type="button"
           variant="outline"
