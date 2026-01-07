@@ -1,8 +1,7 @@
+import Providers from "@/components/common/providers";
+import SettingsMenu from "@/components/main/SettingsMenu";
 import type { Metadata } from "next";
 import "./globals.css";
-import Providers from "@/components/common/providers";
-import Header from "@/components/header/Header";
-import SettingsMenu from "@/components/main/SettingsMenu";
 
 export const metadata: Metadata = {
   title: "Innocean Data Analysis - Renewal",
@@ -28,12 +27,7 @@ export default function RootLayout({
         className="antialiased"
         style={{ fontFamily: "'Pretendard', sans-serif" }}
       >
-        <Providers>
-          <main className="bg-gray-50 text-gray-800 h-screen flex flex-col overflow-hidden">
-            <Header />
-            {children}
-          </main>
-        </Providers>
+        <Providers>{children}</Providers>
         <SettingsMenu />
       </body>
     </html>

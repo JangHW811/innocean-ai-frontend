@@ -1,9 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import LoginForm from "@/components/auth/LoginForm";
 import { useAuthStore } from "@/stores/authStore";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +21,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 flex-col gap-4">
+      <Image src="/logo.png" alt="logo" width={200} height={100} />
       <div className="w-full max-w-md space-y-8 rounded-lg border border-border bg-card p-8 shadow-2xl">
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold">로그인</h1>
