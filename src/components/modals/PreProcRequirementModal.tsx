@@ -26,7 +26,7 @@ interface PreProcRequirementModalProps {
 }
 
 const INSIGHT_CATEGORY_LIST = [
-  "category_brand_discourse",
+  "category_brand_trend",
   "category_needs_triggers",
   "category_unmet_barriers",
   "category_kbf",
