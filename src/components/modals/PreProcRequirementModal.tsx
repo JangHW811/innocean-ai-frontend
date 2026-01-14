@@ -26,7 +26,7 @@ interface PreProcRequirementModalProps {
 }
 
 const INSIGHT_CATEGORY_LIST = [
-  "category_brand_trend",
+  "category_brand_discourse",
   "category_needs_triggers",
   "category_unmet_barriers",
   "category_kbf",
@@ -38,6 +38,12 @@ const INSIGHT_CATEGORY_LIST = [
   "brand_kbf",
   "brand_usage_moment",
   "brand_image",
+];
+
+// 트렌드 분석 - 카테고리/브랜드 + 경쟁사 입력 필요
+const TREND_ANALYSIS_LIST = [
+  "category_brand_trend",
+  "category_brand_discourse",
 ];
 
 interface FormValues {
@@ -104,6 +110,12 @@ const PreProcRequirementModal = ({
       : false;
   }, [selectedJobType]);
 
+  const isSelectedTrendAnalysis = useMemo(() => {
+    return selectedJobType
+      ? TREND_ANALYSIS_LIST.includes(selectedJobType)
+      : false;
+  }, [selectedJobType]);
+
   const handleAnalysisStart = async ({
     brand_name,
     competitive_brands,
@@ -151,7 +163,20 @@ const PreProcRequirementModal = ({
     });
   };
 
-  const renderBrandInputAres = () => {
+  const renderBrandInputAres = (isTrendAnalysis = false) => {
+    const brandLabel = isTrendAnalysis
+      ? "분석대상 카테고리/브랜드"
+      : "분석대상 브랜드";
+    const brandPlaceholder = isTrendAnalysis
+      ? "분석대상 카테고리/브랜드를 입력해주세요(특수문자 제외)"
+      : "분석대상 브랜드를 입력해주세요(특수문자 제외)";
+    const competitorLabel = isTrendAnalysis
+      ? "경쟁사 카테고리/브랜드"
+      : "경쟁사 브랜드";
+    const competitorPlaceholder = isTrendAnalysis
+      ? "경쟁사 카테고리/브랜드를 입력해주세요(특수문자 제외)"
+      : "경쟁사 브랜드를 입력해주세요(특수문자 제외)";
+
     return (
       <>
         <div className="grid gap-2.5">
@@ -161,7 +186,7 @@ const PreProcRequirementModal = ({
               htmlFor="preprocRequirements"
               className="text-sm font-semibold text-slate-200"
             >
-              분석대상 브랜드
+              {brandLabel}
             </Label>
           </div>
           <Input
@@ -199,7 +224,7 @@ const PreProcRequirementModal = ({
                 event.currentTarget.value = filteredValue;
               }
             }}
-            placeholder="분석대상 브랜드를 입력해주세요(특수문자 제외)"
+            placeholder={brandPlaceholder}
           />
           {errors.brand_name && (
             <p className="text-xs text-red-500">{errors.brand_name.message}</p>
@@ -213,7 +238,7 @@ const PreProcRequirementModal = ({
                 htmlFor="preprocRequirements"
                 className="text-sm font-semibold text-slate-200"
               >
-                경쟁사 브랜드
+                {competitorLabel}
               </Label>
             </div>
             <Button
@@ -269,7 +294,7 @@ const PreProcRequirementModal = ({
                       );
                     }
                   }}
-                  placeholder="경쟁사 브랜드를 입력해주세요(특수문자 제외)"
+                  placeholder={competitorPlaceholder}
                   className="flex-1"
                 />
                 <Button
@@ -381,7 +406,8 @@ const PreProcRequirementModal = ({
               </p>
             </div>
             {isSelectedInsightCategory && renderInsightCountInputArea()}
-            {isSelectedBrandCompetitiveAnalysis && renderBrandInputAres()}
+            {isSelectedTrendAnalysis && renderBrandInputAres(true)}
+            {isSelectedBrandCompetitiveAnalysis && renderBrandInputAres(false)}
           </div>
 
           <DialogFooter className="gap-2 sm:gap-2">
