@@ -168,14 +168,14 @@ const PreProcRequirementModal = ({
       ? "분석대상 카테고리/브랜드"
       : "분석대상 브랜드";
     const brandPlaceholder = isTrendAnalysis
-      ? "분석대상 카테고리/브랜드를 입력해주세요(특수문자 제외)"
-      : "분석대상 브랜드를 입력해주세요(특수문자 제외)";
+      ? "분석대상 카테고리/브랜드를 입력해주세요(콤마 허용)"
+      : "분석대상 브랜드를 입력해주세요(콤마 허용)";
     const competitorLabel = isTrendAnalysis
       ? "경쟁사 카테고리/브랜드"
       : "경쟁사 브랜드";
     const competitorPlaceholder = isTrendAnalysis
-      ? "경쟁사 카테고리/브랜드를 입력해주세요(특수문자 제외)"
-      : "경쟁사 브랜드를 입력해주세요(특수문자 제외)";
+      ? "경쟁사 카테고리/브랜드를 입력해주세요(콤마 허용)"
+      : "경쟁사 브랜드를 입력해주세요(콤마 허용)";
 
     return (
       <>
@@ -196,9 +196,9 @@ const PreProcRequirementModal = ({
                 // 조합 중이 아닐 때만 필터링
                 if (!isComposing) {
                   const value = event.target.value;
-                  // 한글, 영문, 숫자, 공백만 허용하고 특수문자 제거
+                  // 한글, 영문, 숫자, 공백, 콤마만 허용하고 특수문자 제거
                   const filteredValue = value.replace(
-                    /[^가-힣a-zA-Z0-9\s]/g,
+                    /[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9 ,]/g,
                     "",
                   );
                   if (value !== filteredValue) {
@@ -216,7 +216,10 @@ const PreProcRequirementModal = ({
               setIsComposing(false);
               // 한글 입력 조합 완료 후 필터링
               const value = event.currentTarget.value;
-              const filteredValue = value.replace(/[^가-힣a-zA-Z0-9\s]/g, "");
+              const filteredValue = value.replace(
+                /[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9 ,]/g,
+                "",
+              );
               if (value !== filteredValue) {
                 setValue("brand_name", filteredValue, {
                   shouldValidate: true,
@@ -263,9 +266,9 @@ const PreProcRequirementModal = ({
                     // 조합 중이 아닐 때만 필터링
                     if (!isComposing) {
                       const value = event.target.value;
-                      // 한글, 영문, 숫자, 공백만 허용하고 특수문자 제거
+                      // 한글, 영문, 숫자, 공백, 콤마만 허용하고 특수문자 제거
                       const filteredValue = value.replace(
-                        /[^가-힣a-zA-Z0-9\s]/g,
+                        /[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9 ,]/g,
                         "",
                       );
                       if (value !== filteredValue) {
@@ -283,7 +286,7 @@ const PreProcRequirementModal = ({
                     // 한글 입력 조합 완료 후 필터링
                     const value = event.currentTarget.value;
                     const filteredValue = value.replace(
-                      /[^가-힣a-zA-Z0-9\s]/g,
+                      /[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9 ,]/g,
                       "",
                     );
                     if (value !== filteredValue) {
