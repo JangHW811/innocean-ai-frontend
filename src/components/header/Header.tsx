@@ -13,7 +13,7 @@ const Header = () => {
 
   const isLoggedIn = useAuthStore((state) => state.isAuthenticated);
   return (
-    <header className="min-h-14 flex items-center justify-between px-6 border-b border-gray-100 bg-white shadow-sm gap-2">
+    <header className="min-h-14 flex items-center justify-between px-6 border-b border-gray-100 bg-white shadow-sm gap-2 sticky top-0 z-50">
       <div className="flex items-center gap-2">
         <Image src="/logo.png" alt="logo" width={100} height={100} />
         <h1 className="text-base font-semibold text-gray-800">
