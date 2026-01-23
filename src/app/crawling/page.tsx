@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import type { CrawlingListParams } from "@/apis/crawling";
+import Header from "@/components/header/Header";
 import NaverCrawlingRegistModal from "@/components/modals/NaverCrawlingRegistModal";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
@@ -60,6 +61,7 @@ export default function CrawlingPage() {
 
   return (
     <>
+      <Header />
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
           <div className="flex-1 overflow-y-auto p-6 pb-8">
