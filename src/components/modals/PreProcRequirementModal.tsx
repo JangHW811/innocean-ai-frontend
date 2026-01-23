@@ -1,6 +1,6 @@
 "use client";
 
-import { NotebookPen, Plus, X } from "lucide-react";
+import { CircleDot, NotebookPen, Plus, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useMethods } from "@/apis/method";
@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { useAlertActions } from "@/stores/alertStore";
 import { useSessionStore } from "@/stores/sessionStore";
 import { Input } from "../ui/input";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
 interface PreProcRequirementModalProps {
   open: boolean;
@@ -47,6 +48,7 @@ const TREND_ANALYSIS_LIST = [
 ];
 
 interface FormValues {
+  analysis_target_type?: "category" | "brand";
   brand_name?: string;
   competitive_brands: string[];
   preproc_requirements?: string;
@@ -74,12 +76,16 @@ const PreProcRequirementModal = ({
     reset,
     setValue,
     control,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
+      analysis_target_type: "category",
       competitive_brands: [""],
     },
   });
+
+  const analysisTargetType = watch("analysis_target_type");
 
   const { fields, append, remove } = useFieldArray<any>({
     control,
@@ -91,6 +97,7 @@ const PreProcRequirementModal = ({
   useEffect(() => {
     if (!open) {
       reset({
+        analysis_target_type: "category",
         competitive_brands: [""],
       });
     }
@@ -177,8 +184,56 @@ const PreProcRequirementModal = ({
       ? "경쟁사 카테고리/브랜드를 입력해주세요(콤마 허용)"
       : "경쟁사 브랜드를 입력해주세요(콤마 허용)";
 
+    const isBrandRequired = isTrendAnalysis
+      ? analysisTargetType === "brand"
+      : true;
+
     return (
       <>
+        {isTrendAnalysis && (
+          <div className="grid gap-2.5">
+            <div className="flex items-center gap-2">
+              <CircleDot className="w-4 h-4 text-indigo-400" />
+              <Label className="text-sm font-semibold text-slate-200">
+                분석 대상 유형
+              </Label>
+            </div>
+            <RadioGroup
+              value={analysisTargetType}
+              onValueChange={(value: "category" | "brand") =>
+                setValue("analysis_target_type", value)
+              }
+              className="flex gap-6"
+            >
+              <div className="flex items-center gap-2">
+                <RadioGroupItem
+                  value="category"
+                  id="analysis-target-category"
+                  className="border-slate-500 text-indigo-400"
+                />
+                <Label
+                  htmlFor="analysis-target-category"
+                  className="text-sm text-slate-200 cursor-pointer"
+                >
+                  카테고리
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem
+                  value="brand"
+                  id="analysis-target-brand"
+                  className="border-slate-500 text-indigo-400"
+                />
+                <Label
+                  htmlFor="analysis-target-brand"
+                  className="text-sm text-slate-200 cursor-pointer"
+                >
+                  브랜드
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+        )}
         <div className="grid gap-2.5">
           <div className="flex items-center gap-2">
             <NotebookPen className="w-4 h-4 text-indigo-400" />
@@ -187,6 +242,9 @@ const PreProcRequirementModal = ({
               className="text-sm font-semibold text-slate-200"
             >
               {brandLabel}
+              {isTrendAnalysis && !isBrandRequired && (
+                <span className="ml-1 text-slate-500 font-normal">(선택)</span>
+              )}
             </Label>
           </div>
           <Input
@@ -209,7 +267,9 @@ const PreProcRequirementModal = ({
                   }
                 }
               },
-              required: "분석대상 브랜드를 입력해주세요",
+              required: isBrandRequired
+                ? "분석대상 브랜드를 입력해주세요"
+                : false,
             })}
             onCompositionStart={() => setIsComposing(true)}
             onCompositionEnd={(event) => {
