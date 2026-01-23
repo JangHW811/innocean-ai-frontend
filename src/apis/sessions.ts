@@ -1,10 +1,10 @@
-import { useAuthStore } from "@/stores/authStore";
 import {
   useMutation,
   useQuery,
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/authStore";
 import { http } from "./common";
 
 export interface SessionInfo {
@@ -59,7 +59,10 @@ export const useSessionInfo = (sessionId: string | null) => {
     enabled: !!sessionId,
     queryFn: async () => {
       const result = await http.get<SessionInfo>(`/api/sessions/${sessionId}`);
-      const jobs = [...(result?.jobs ?? [])].reverse();
+      const jobs = [...(result?.jobs ?? [])].sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
       return { ...result, jobs };
     },
   });
