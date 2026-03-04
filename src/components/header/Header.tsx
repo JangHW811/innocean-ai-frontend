@@ -17,7 +17,7 @@ const Header = () => {
       <div className="flex items-center gap-2">
         <Image src="/logo.png" alt="logo" width={100} height={100} />
         <h1 className="text-base font-semibold text-gray-800">
-          Conversational Data Analysis
+          InnoD<span className="text-blue-600">AI</span>V
         </h1>
       </div>
       {isLoggedIn && (

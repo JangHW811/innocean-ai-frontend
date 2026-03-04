@@ -39,7 +39,7 @@ export default function LoginForm() {
     setError(null);
 
     const isValid = USERS.some(
-      (account) => account.id === data.id && account.password === data.password
+      (account) => account.id === data.id && account.password === data.password,
     );
 
     if (isValid) {
@@ -77,10 +77,6 @@ export default function LoginForm() {
               placeholder="비밀번호를 입력하세요"
               {...register("password", {
                 required: "비밀번호를 입력해주세요",
-                minLength: {
-                  value: 6,
-                  message: "비밀번호는 최소 6자 이상이어야 합니다",
-                },
               })}
             />
             <FieldError errors={[errors.password]} />
